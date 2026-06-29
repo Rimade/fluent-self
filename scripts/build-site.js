@@ -88,9 +88,11 @@ function transform(html) {
 		'<form action="order.html" data-behavior="order" data-site-form="trial">',
 	);
 
+	out = out.replace(/<script src="https:\/\/polyfill\.io[^<]+<\/script>\s*/g, '');
+
 	if (!out.includes('id="logo"')) {
 		out = out.replace(
-			/(<script src="https:\/\/polyfill\.io)/,
+			/(<script src="https:\/\/cdn\.jsdelivr\.net\/combine)/,
 			`${SPRITE}\n  <script src="js/config.js"></script>\n  <script src="js/site.js"></script>\n  $1`,
 		);
 	}
