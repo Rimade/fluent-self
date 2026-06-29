@@ -1,56 +1,42 @@
 # Fluent Self — школа иностранных языков (взрослые)
 
-Pixel-perfect клон [firstuk.school](https://firstuk.school/) под бренд **Fluent Self**.
-Детские курсы — отдельный сайт [Fluent Self kids](https://fluentselfkids.ru).
+Клон [firstuk.school](https://firstuk.school/) под бренд **Fluent Self**. Дети — [Fluent Self kids](https://fluentselfkids.ru).
 
 ## Быстрый старт
 
 ```bash
-cd fluent-self
-cp js/config.example.js js/config.js   # заполнить контакты
+cp js/config.example.js js/config.js
 npx serve .
 ```
 
-## Структура
+## Скрипты
 
-```
-index.html                    — главная
-kursy-dlya-vzroslyh.html      — курсы для взрослых
-kursy-dlya-detej.html         — дети (клон; в меню можно вести на kids-сайт)
-korporativnoe-obuchenie.html  — бизнес
-about.html, contacts.html, order.html, events.html, photo.html
-assets/css/index.min.css      — стили firstuk (адаптированы)
-assets/js/index.min.js        — поведение (menu, swiper, typeit, scroll)
-js/config.js                  — контакты, Telegram (gitignore)
-js/site.js                    — подстановка контактов + форма
-scripts/build-site.js         — пересборка из _ref-*.html
-```
+| Команда | Назначение |
+|---------|------------|
+| `node scripts/build-site.js` | Пересборка из `_ref-*.html` |
+| `node scripts/modernize-html.js` | Патч HTML (a11y, SEO, формы) |
 
-## Пересборка из референса
+## Конфиг `js/config.js`
 
-Если обновили `_ref-*.html` с firstuk:
+- Контакты, WhatsApp, карта, соцсети
+- `siteUrl` — canonical и Open Graph
+- `telegram` — заявки с формы (как на kids-сайте)
 
-```bash
-node scripts/build-site.js
-```
+## Улучшения (modernize)
 
-## Деплой (Reg.ru, второй сайт на Host-0)
+- Удалён **polyfill.io** (окно «Вход»)
+- `css/site.css` — focus, cookie, адаптивная карта
+- `js/site.js` — SEO meta, валидация формы, cookie-баннер
+- `js/telegram.js` — отправка заявок
+- `sitemap.xml`, `privacy.html`, favicon.svg
+- Шрифт Graphik в `assets/fonts/`
 
-1. Залить папку `fluent-self` в корень домена
+## Деплой Reg.ru
+
+1. Залить файлы в корень домена
 2. Создать `js/config.js` на сервере
-3. `siteUrl` в config — ваш новый домен
+3. Заполнить `siteUrl` и реальные контакты
 
-## Отличия от firstuk
+## Медиа
 
-| | firstuk | Fluent Self |
-|---|---------|-------------|
-| Бренд | First UK School | Fluent Self |
-| Дети в меню | локальная страница | ссылка на fluentselfkids.ru (опционально) |
-| Форма | их backend | Telegram / mailto |
-| Фото | их CDN | пока firstuk CDN (можно заменить) |
-| Footer | Redo | ссылка на Fluent Self kids |
-
-## Документация
-
-- [docs/ANALYSIS-firstuk.md](docs/ANALYSIS-firstuk.md)
-- [docs/PLAN.md](docs/PLAN.md)
+Фото пока с CDN firstuk — замените на свои в HTML или скачайте в `assets/media/`.

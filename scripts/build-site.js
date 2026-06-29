@@ -64,9 +64,16 @@ function transform(html) {
 	out = out.replace(/https:\/\/firstuk\.school\/assets\/js\/index\.min\.js/g, 'assets/js/index.min.js');
 	out = out.replace(/https:\/\/firstuk\.school\/assets\/icons\/[^"']+/g, 'assets/icons/favicon.png');
 
+	out = out.replace(/href="https:\/\/firstuk\.school"/g, 'href="index.html"');
+	out = out.replace(/<script src="https:\/\/polyfill\.io[^<]+<\/script>\s*/g, '');
+	out = out.replace(/lang="ru-RU"/g, 'lang="ru"');
+	out = out.replace(/First UK school/gi, 'Fluent Self');
+	out = out.replace(/First UK School/gi, 'Fluent Self');
+	out = out.replace(/сотруников/g, 'сотрудников');
+	out = out.replace(/viewbox=/gi, 'viewBox=');
+
 	out = out.replace(/https:\/\/firstuk\.school\/(?!media\/)([a-z0-9\-/]*)/gi, (_, p) => mapUrl(p));
 
-	out = out.replace(/First UK School/g, 'Fluent Self');
 	out = out.replace(/\(c\) Fluent Self/g, '(c) Fluent Self');
 	out = out.replace(/Языковая школа для современных людей/g, 'Школа иностранных языков для взрослых');
 	out = out.replace(/og:site_name" content="Языковая школа"/g, 'og:site_name" content="Fluent Self"');
@@ -90,10 +97,17 @@ function transform(html) {
 
 	out = out.replace(/<script src="https:\/\/polyfill\.io[^<]+<\/script>\s*/g, '');
 
+	if (!out.includes('css/site.css')) {
+		out = out.replace(
+			/(<link href="assets\/css\/index\.min\.css" rel="stylesheet">)/,
+			'$1\n  <link href="css/site.css" rel="stylesheet">',
+		);
+	}
+
 	if (!out.includes('id="logo"')) {
 		out = out.replace(
 			/(<script src="https:\/\/cdn\.jsdelivr\.net\/combine)/,
-			`${SPRITE}\n  <script src="js/config.js"></script>\n  <script src="js/site.js"></script>\n  $1`,
+			`${SPRITE}\n  <script src="js/config.js"></script>\n  <script src="js/telegram.js"></script>\n  <script src="js/site.js"></script>\n  $1`,
 		);
 	}
 
