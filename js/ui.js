@@ -27,8 +27,8 @@
 		subtitle.className = 'fs-hero-subtitle';
 		subtitle.textContent = 'Спокойная атмосфера, живое общение и программы для взрослых';
 
-		typeitHost.before(subtitle);
 		typeitHost.before(title);
+		title.after(subtitle);
 	}
 
 	function initHeroCta() {
