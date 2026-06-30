@@ -17,7 +17,7 @@
 }
 
 :focus-visible {
-  outline: 2px solid var(--fs-primary, #1a6b4a);
+  outline: 2px solid var(--fs-primary, #5a7f76);
   outline-offset: 2px;
 }
 
@@ -65,7 +65,7 @@ footer iframe,
 }
 
 .form-message--success {
-  color: var(--fs-primary, #1a6b4a);
+  color: var(--fs-primary, #5a7f76);
 }
 
 .form-message[hidden] {
@@ -129,8 +129,8 @@ button[disabled],
 }
 
 .site-cookie__btn--accept {
-  background: var(--fs-primary, #1a6b4a);
-  border-color: var(--fs-primary, #1a6b4a);
+  background: var(--fs-primary, #5a7f76);
+  border-color: var(--fs-primary, #5a7f76);
   color: #fff;
 }
 

@@ -5,6 +5,7 @@
 	const cfg = window.SITE_CONFIG || {};
 	const kidsUrl = cfg.kidsSite || 'https://fluentselfkids.ru';
 
+	initAdultHero();
 	initHeroCta();
 	hideCelebritiesBlock();
 	injectPillarsSection();
@@ -12,6 +13,23 @@
 	initHeaderScroll();
 	injectPageCta();
 	updateThemeColor();
+
+	function initAdultHero() {
+		const hero = document.querySelector('.home-hero');
+		const typeitHost = hero?.querySelector('[data-behavior="typeit"]');
+		if (!hero || !typeitHost || hero.querySelector('.fs-hero-title')) return;
+
+		const title = document.createElement('h1');
+		title.className = 'fs-hero-title fz-xl-vw uppercase';
+		title.textContent = 'Школа иностранных языков';
+
+		const subtitle = document.createElement('p');
+		subtitle.className = 'fs-hero-subtitle';
+		subtitle.textContent = 'Спокойная атмосфера, живое общение и программы для взрослых';
+
+		typeitHost.before(subtitle);
+		typeitHost.before(title);
+	}
 
 	function initHeroCta() {
 		const hero = document.querySelector('.home-hero');
@@ -100,10 +118,10 @@
 			'<div class="container"><div class="fs-kids-banner__inner"><div>' +
 			'<p class="fs-kids-banner__label ff-graphik tracking-wide">Для детей 3–16 лет</p>' +
 			'<h2 class="fs-kids-banner__title">Fluent Self kids</h2>' +
-			'<p class="fs-kids-banner__text">Английский для детей и подростков — отдельный сайт с программами по возрасту.</p>' +
+			'<p class="fs-kids-banner__text">Отдельный проект для детей и подростков — со своей методикой и расписанием.</p>' +
 			'</div><a href="' +
 			kidsUrl +
-			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide" target="_blank" rel="noopener">Перейти на kids →</a></div></div>';
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide" target="_blank" rel="noopener">Fluent Self kids</a></div></div>';
 		anchor.insertAdjacentElement('afterend', banner);
 	}
 
@@ -144,6 +162,6 @@
 			meta.name = 'theme-color';
 			document.head.appendChild(meta);
 		}
-		meta.content = '#1a6b4a';
+		meta.content = '#5a7f76';
 	}
 })();
