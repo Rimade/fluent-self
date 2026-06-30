@@ -91,12 +91,20 @@
 		document.head.appendChild(link);
 	}
 
-	applyContacts();
-	initForms();
-	initAccessibility();
-	initCookie();
-	initContactButtons();
-	injectJsonLd();
+	function bootDomFeatures() {
+		applyContacts();
+		initForms();
+		initAccessibility();
+		initCookie();
+		initContactButtons();
+		injectJsonLd();
+	}
+
+	if (document.getElementById('site-chrome')) {
+		document.addEventListener('partials:ready', bootDomFeatures);
+	} else {
+		bootDomFeatures();
+	}
 
 	function setMeta(name, content, attr = 'name') {
 		if (!content) return;

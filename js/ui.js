@@ -2,9 +2,17 @@
  * Fluent Self — UI-компоненты
  */
 (function () {
-	const cfg = window.SITE_CONFIG || {};
-	const kidsUrl = cfg.kidsSite || 'https://fluentselfkids.ru';
+	function bootUi() {
+		runUi();
+	}
 
+	if (document.getElementById('site-chrome')) {
+		document.addEventListener('partials:ready', bootUi);
+	} else {
+		bootUi();
+	}
+
+	function runUi() {
 	initAdultHero();
 	initHeroCta();
 	purgeCelebrities();
@@ -14,10 +22,11 @@
 	initHeaderScroll();
 	injectPageCta();
 	initKidsPageNotice();
-	dedupeReviews();
+	renderReviews();
 	renderEventsPage();
 	populateTrialCourses();
 	updateThemeColor();
+	}
 
 	function initAdultHero() {
 		const hero = document.querySelector('.home-hero');
@@ -58,7 +67,7 @@
 	}
 
 	function replaceFirstukMedia() {
-		const cover = cfg.brandCover || 'assets/brand/fluent-self-cover.png';
+		const cover = (window.SITE_CONFIG || {}).brandCover || 'assets/brand/fluent-self-cover.png';
 		document.querySelectorAll('img[src*="firstuk"]').forEach((img) => {
 			img.src = cover;
 			img.alt = 'Fluent Self — атмосфера школы';
@@ -78,10 +87,22 @@
 		if (!hero) return;
 
 		const pillars = [
-			{ title: 'Коммуникативный подход', text: 'Говорим с первого занятия — без зубрёжки правил в отрыве от живой речи.' },
-			{ title: 'Группы до 6 человек', text: 'Преподаватель успевает уделить внимание каждому и подстроить темп.' },
-			{ title: 'Носители языка', text: 'Погружение в среду помогает преодолеть барьер и улучшить произношение.' },
-			{ title: 'Пробный урок бесплатно', text: 'Познакомьтесь со школой и форматом занятий без обязательств.' },
+			{
+				title: 'Коммуникативный подход',
+				text: 'Говорим с первого занятия — без зубрёжки правил в отрыве от живой речи.',
+			},
+			{
+				title: 'Группы до 6 человек',
+				text: 'Преподаватель успевает уделить внимание каждому и подстроить темп.',
+			},
+			{
+				title: 'Носители языка',
+				text: 'Погружение в среду помогает преодолеть барьер и улучшить произношение.',
+			},
+			{
+				title: 'Пробный урок бесплатно',
+				text: 'Познакомьтесь со школой и форматом занятий без обязательств.',
+			},
 		];
 
 		const section = document.createElement('section');
@@ -115,6 +136,7 @@
 			document.querySelector('.courses');
 		if (!anchor) return;
 
+		const kidsUrl = (window.SITE_CONFIG || {}).kidsSite || 'https://fluentselfkids.ru';
 		const banner = document.createElement('aside');
 		banner.className = 'fs-kids-banner';
 		banner.innerHTML =
@@ -139,8 +161,8 @@
 	function injectPageCta() {
 		if (document.querySelector('.fs-page-cta')) return;
 		const main = document.querySelector('[data-menu-page]');
-		const footer = main?.querySelector('footer');
-		if (!main || !footer) return;
+		const footerHost = main?.querySelector('#site-footer, footer');
+		if (!main || !footerHost) return;
 
 		const page = location.pathname.split('/').pop() || 'index.html';
 		if (page === 'index.html' || page === 'order.html' || page === 'contacts.html') return;
@@ -153,7 +175,7 @@
 			'<h2 class="fs-page-cta__title">Запишитесь на бесплатный пробный урок</h2>' +
 			'<p class="fs-page-cta__text">Познакомьтесь со школой, преподавателем и форматом занятий — без обязательств.</p></div>' +
 			'<a href="order.html" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a></div></div>';
-		footer.insertAdjacentElement('beforebegin', cta);
+		footerHost.insertAdjacentElement('beforebegin', cta);
 	}
 
 	function initKidsPageNotice() {
@@ -161,6 +183,7 @@
 		const main = document.querySelector('[data-menu-page]');
 		if (!main || main.querySelector('.fs-kids-notice')) return;
 
+		const kidsUrl = (window.SITE_CONFIG || {}).kidsSite || 'https://fluentselfkids.ru';
 		const notice = document.createElement('div');
 		notice.className = 'fs-kids-notice';
 		notice.innerHTML =
@@ -173,24 +196,39 @@
 		main.querySelector('.page-cover')?.insertAdjacentElement('afterend', notice);
 	}
 
-	function dedupeReviews() {
-		const siema = document.querySelector('[data-behavior="siema"]');
-		if (!siema) return;
-		siema.closest('.overflow-hidden')?.classList.add('fs-reviews');
+	function renderReviews() {
+		const host = document.querySelector('[data-site-reviews]');
+		const reviews = window.SITE_CONTENT?.reviews;
+		if (!host || !reviews?.length) return;
 
-		const seen = new Set();
-		siema.querySelectorAll('.swiper-slide .review-name').forEach((el) => {
-			const key = el.textContent.trim();
-			if (seen.has(key)) el.closest('.swiper-slide')?.remove();
-			else seen.add(key);
-		});
+		const slides = reviews
+			.map(
+				(r) =>
+					'<div class="swiper-slide"><div class="review-name text-center fz-norm ff-italic text-center">' +
+					r.name +
+					'</div></div>',
+			)
+			.join('');
 
-		const seenText = new Set();
-		siema.parentElement?.querySelectorAll('[data-siema-item].review-text').forEach((el) => {
-			const key = el.textContent.trim().slice(0, 80);
-			if (seenText.has(key)) el.remove();
-			else seenText.add(key);
-		});
+		const texts = reviews
+			.map(
+				(r) =>
+					'<div class="col-12 sm:col-11 md:col-8 text-center kt-block review-text" data-siema-item hidden>' +
+					r.text +
+					'</div>',
+			)
+			.join('');
+
+		host.className = 'fs-reviews-wrap overflow-hidden';
+		host.innerHTML =
+			'<div class="py-75"><div class="fz-xs uppercase tracking-wide text-center ff-graphik">Отзывы о нас</div></div>' +
+			'<div class="overflow-hidden fs-reviews"><div data-behavior="siema">' +
+			'<div class="swiper-wrapper flex flex-no-wrap">' +
+			slides +
+			'</div></div>' +
+			'<div class="container"><div class="row justify-center pt-25 pb-50">' +
+			texts +
+			'</div></div></div>';
 	}
 
 	function renderEventsPage() {
