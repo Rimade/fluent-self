@@ -8,9 +8,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const KIDS = 'https://fluentselfkids.ru';
 
-const PAGES = fs
-	.readdirSync(ROOT)
-	.filter((f) => f.endsWith('.html') && !f.startsWith('_ref'));
+const PAGES = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !f.startsWith('_ref'));
 
 function patch(html, filename) {
 	let out = html;
@@ -18,8 +16,14 @@ function patch(html, filename) {
 	out = out.replace(/lang="ru-RU"/g, 'lang="ru"');
 	out = out.replace(/<meta http-equiv="X-UA-Compatible"[^>]*>\s*/g, '');
 	out = out.replace(/<!--\[if lt IE 9\]>[\s\S]*?<!\[endif\]-->\s*/g, '');
-	out = out.replace(/<!-- Add preloading fonts files -->[\s\S]*?<link rel="preload" href=""[^>]*>\s*/g, '');
-	out = out.replace(/<!--<script type="text\/javascript" src="https:\/\/w842110\.yclients\.com[^]*?<\/script>-->\s*/g, '');
+	out = out.replace(
+		/<!-- Add preloading fonts files -->[\s\S]*?<link rel="preload" href=""[^>]*>\s*/g,
+		'',
+	);
+	out = out.replace(
+		/<!--<script type="text\/javascript" src="https:\/\/w842110\.yclients\.com[^]*?<\/script>-->\s*/g,
+		'',
+	);
 	out = out.replace(/\s*<\/script>-->/g, '');
 	out = out.replace(/<!--КНОПКА Wharsapp-->/g, '<!-- WhatsApp -->');
 	out = out.replace(/<!--конец КНОПКА Wharsapp-->/g, '');
@@ -28,6 +32,13 @@ function patch(html, filename) {
 		out = out.replace(
 			/(<link href="assets\/css\/index\.min\.css" rel="stylesheet">)/,
 			'$1\n  <link href="css/site.css" rel="stylesheet">',
+		);
+	}
+
+	if (!out.includes('brand.css')) {
+		out = out.replace(
+			/(<link href="css\/site\.css" rel="stylesheet">)/,
+			'$1\n  <link href="css/brand.css" rel="stylesheet">',
 		);
 	}
 
@@ -92,6 +103,13 @@ function patch(html, filename) {
 		out = out.replace(
 			/<script src="js\/config\.js"><\/script>/,
 			'<script src="js/config.js"></script>\n  <script src="js/telegram.js"></script>',
+		);
+	}
+
+	if (!out.includes('js/ui.js') && out.includes('js/site.js')) {
+		out = out.replace(
+			/<script src="js\/site\.js"><\/script>/,
+			'<script src="js/site.js"></script>\n  <script src="js/ui.js"></script>',
 		);
 	}
 
