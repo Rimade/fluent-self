@@ -135,58 +135,59 @@
 
 <div class="course-page">
   <div class="container">
-    <div class="card-dot" style="background-color: #163043;"></div>
+    <div class="card-dot" style="background-color: #5a7f76;"></div>
 
     <div class="fz-lg text-center uppercase course-page-title">Запись на пробный урок</div>
 
     <div class="pt-80 md:pt-140 lg:pt-180">
       <div class="row">
         <div class="block col-12 sm:col-4 md:col-3 mb-50 sm:mb-0">
-          <div class="fz-xs kti-block hidden sm:block">Чтобы записаться, заполните форму.<br />
-Пробный урок — бесплатный.</div>
-          <div class="fz-norm kti-block sm:hidden">Чтобы записаться, заполните форму.<br />
-Пробный урок — бесплатный.</div>
+          <div class="fs-form-aside fz-xs kti-block hidden sm:block">
+            Заполните форму — мы свяжемся с вами и подберём удобное время.<br />
+            Пробный урок бесплатный, без обязательств.
+          </div>
+          <div class="fs-form-aside fz-norm kti-block sm:hidden">
+            Заполните форму — мы свяжемся с вами.<br />
+            Пробный урок бесплатный.
+          </div>
         </div>
 
         <div class="col-12 sm:col-8 md:offset-1">
-          <form action="order.html" data-behavior="order" data-site-form="trial">
+          <form action="order.html" data-behavior="order" data-site-form="trial" class="fs-form">
             <input type="hidden" name="request" value="request">
-            <div class="fz-md mb-30 sm:mb-50">
-              <input type="text" name="name" autocomplete="name" required minlength="2" placeholder="Имя и Фамилия">
-            </div>
-            <div class="fz-md mb-30 sm:mb-50">
-              <input type="email" name="email" autocomplete="email" required placeholder="E-mail">
-            </div>
-            <div class="fz-md mb-30 sm:mb-50">
-              <input type="tel" name="phone" autocomplete="tel" required placeholder="Номер телефона">
-            </div>
-            <div class="flex">
-              <div class="fz-md mr-25">Курс</div>
 
-              <div class="select block" data-behavior="select">
+            <div class="fs-form-field fz-md mb-30 sm:mb-50">
+              <label class="fs-form-label ff-graphik tracking-wide" for="trial-name">Имя и фамилия</label>
+              <input id="trial-name" type="text" name="name" autocomplete="name" required minlength="2" placeholder="Как к вам обращаться">
+            </div>
+
+            <div class="fs-form-field fz-md mb-30 sm:mb-50">
+              <label class="fs-form-label ff-graphik tracking-wide" for="trial-email">E-mail</label>
+              <input id="trial-email" type="email" name="email" autocomplete="email" required placeholder="name@example.com">
+            </div>
+
+            <div class="fs-form-field fz-md mb-30 sm:mb-50">
+              <label class="fs-form-label ff-graphik tracking-wide" for="trial-phone">Телефон</label>
+              <input id="trial-phone" type="tel" name="phone" autocomplete="tel" required placeholder="+7 (___) ___-__-__">
+            </div>
+
+            <div class="fs-form-field flex flex-wrap items-baseline gap-15">
+              <label class="fs-form-label ff-graphik tracking-wide" for="trial-course">Курс</label>
+              <div class="select block flex-1" data-behavior="select" data-site-form-courses>
                 <span data-select-label class="fz-md">Выберите курс</span>
-
-                <select data-select-field name="course">
+                <select id="trial-course" data-select-field name="course">
                   <option value="" selected>Выберите курс</option>
-                                      <option value="ИНТЕНСИВНЫЙ АНГЛИЙСКИЙ">ИНТЕНСИВНЫЙ АНГЛИЙСКИЙ</option>
-                                      <option value="БИЗНЕС-АНГЛИЙСКИЙ ">БИЗНЕС-АНГЛИЙСКИЙ </option>
-                                      <option value="РАЗГОВОРНЫЙ АНГЛИЙСКИЙ">РАЗГОВОРНЫЙ АНГЛИЙСКИЙ</option>
-                                      <option value="ИСПАНСКИЙ ЯЗЫК">ИСПАНСКИЙ ЯЗЫК</option>
-                                      <option value="НЕМЕЦКИЙ ЯЗЫК">НЕМЕЦКИЙ ЯЗЫК</option>
-                                      <option value="КИТАЙСКИЙ ЯЗЫК">КИТАЙСКИЙ ЯЗЫК</option>
-                                      <option value="ИТАЛЬЯНСКИЙ ЯЗЫК ">ИТАЛЬЯНСКИЙ ЯЗЫК </option>
-                                      <option value="ФРАНЦУЗСКИЙ ЯЗЫК ">ФРАНЦУЗСКИЙ ЯЗЫК </option>
-                                      <option value="АРАБСКИЙ ЯЗЫК">АРАБСКИЙ ЯЗЫК</option>
-                                      <option value="АНГЛИЙСКИЙ ДЛЯ ДЕТЕЙ 3-6 ЛЕТ">АНГЛИЙСКИЙ ДЛЯ ДЕТЕЙ 3-6 ЛЕТ</option>
-                                      <option value="АНГЛИЙСКИЙ ДЛЯ ДЕТЕЙ 6-12 лет">АНГЛИЙСКИЙ ДЛЯ ДЕТЕЙ 6-12 лет</option>
-                                      <option value="АНГЛИЙСКИЙ ДЛЯ ПОДРОСТКОВ">АНГЛИЙСКИЙ ДЛЯ ПОДРОСТКОВ</option>
-                                  </select>
+                </select>
               </div>
             </div>
 
-            <div class="pt-50 sm:pt-150">
+            <p class="fs-form-note">Детские программы — на сайте <a href="https://fluentselfkids.ru" class="link link-green" target="_blank" rel="noopener">Fluent Self kids</a>.</p>
+
+            <div class="pt-50 sm:pt-80">
               <button type="submit" class="button button-fill ff-graphik tracking-wide">Записаться на пробный урок</button>
             </div>
+
+            <p class="fs-form-privacy">Отправляя форму, вы соглашаетесь с <a href="privacy.html" class="link link-green">политикой конфиденциальности</a>.</p>
           </form>
         </div>
       </div>
@@ -292,6 +293,7 @@
 </symbol>
 </svg>
   <script src="js/config.js"></script>
+  <script src="js/content.js"></script>
   <script src="js/telegram.js"></script>
   <script src="js/site.js"></script>
   <script src="js/ui.js"></script>

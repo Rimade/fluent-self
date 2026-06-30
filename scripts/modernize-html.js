@@ -113,6 +113,13 @@ function patch(html, filename) {
 		);
 	}
 
+	if (!out.includes('js/content.js')) {
+		out = out.replace(
+			/<script src="js\/config\.js"><\/script>/,
+			'<script src="js/config.js"></script>\n  <script src="js/content.js"></script>',
+		);
+	}
+
 	out = out.replace(
 		/Москва, Мосфильмовская, дом 88, корп\. 4 ст3 м\. Раменки/g,
 		'<span data-site-address>г. Москва, ул. Примерная, д. 1</span>',
@@ -134,7 +141,10 @@ function patch(html, filename) {
 		/https:\/\/firstuk\.school\/media\/[^)"']+/g,
 		'assets/brand/fluent-self-cover.png',
 	);
-	out = out.replace(/Залина Баширова,\s*<br>\s*директор школы Fisrt UK/gi, 'Команда Fluent Self,<br>руководство школы');
+	out = out.replace(
+		/Залина Баширова,\s*<br>\s*директор школы Fisrt UK/gi,
+		'Команда Fluent Self,<br>руководство школы',
+	);
 	out = out.replace(/директора школы Залину/gi, 'команду школы');
 
 	return out;

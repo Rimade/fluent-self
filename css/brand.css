@@ -468,3 +468,90 @@ footer {
     scroll-behavior: auto;
   }
 }
+
+.dark-green {
+  background: var(--fs-surface-alt) !important;
+  color: var(--fs-ink) !important;
+}
+
+.fs-events-upcoming {
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.fs-events-upcoming__title {
+  margin: 0 0 1rem;
+}
+
+.fs-events-upcoming__text {
+  margin: 0 0 1.5rem;
+  max-width: 36em;
+  color: var(--fs-muted);
+}
+
+.fs-events-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2.5rem;
+  margin: 0 0 1.75rem;
+}
+
+.fs-events-meta dt {
+  margin: 0 0 0.25rem;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fs-muted);
+}
+
+.fs-events-meta dd {
+  margin: 0;
+  font-size: 15px;
+}
+
+.fs-events-past {
+  margin-top: clamp(2rem, 5vw, 4rem);
+  padding: var(--fs-section-y) 0;
+  background: var(--fs-surface-alt);
+  border-top: 1px solid var(--fs-line);
+}
+
+.fs-events-past__heading {
+  padding: clamp(1.5rem, 4vw, 3rem) 0;
+  margin: 0;
+}
+
+.fs-events-past__note {
+  margin: 0;
+  padding: 1.5rem 0 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--fs-muted);
+  text-align: center;
+}
+
+.fs-form-aside {
+  color: var(--fs-muted);
+  line-height: 1.55;
+}
+
+.fs-form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fs-muted);
+}
+
+.fs-form-note,
+.fs-form-privacy {
+  margin: 1.25rem 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fs-muted);
+}
+
+.fs-form-privacy {
+  margin-top: 1rem;
+  font-style: italic;
+}
