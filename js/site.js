@@ -5,51 +5,10 @@
 	const cfg = window.SITE_CONFIG;
 	if (!cfg) return;
 
-	const PAGE_META = {
-		'index.html': {
-			title: 'Fluent Self — школа иностранных языков для взрослых',
-			description:
-				'Изучение английского, немецкого, французского и других языков. Группы до 6 человек, носители языка, бесплатный пробный урок.',
-		},
-		'about.html': {
-			title: 'О школе — Fluent Self',
-			description:
-				'Коммуникативная методика, уютные классы и индивидуальный подход к каждому студенту.',
-		},
-		'kursy-dlya-vzroslyh.html': {
-			title: 'Курсы для взрослых — Fluent Self',
-			description:
-				'Английский, немецкий, китайский, французский и другие языки. Групповые и индивидуальные занятия.',
-		},
-		'kursy-dlya-detej.html': {
-			title: 'Курсы для детей — Fluent Self kids',
-			description: 'Английский для детей от 3 до 16 лет — на отдельном сайте Fluent Self kids.',
-		},
-		'korporativnoe-obuchenie.html': {
-			title: 'Корпоративное обучение — Fluent Self',
-			description: 'Деловой английский и языковые программы для компаний.',
-		},
-		'contacts.html': {
-			title: 'Контакты и адреса — Fluent Self',
-			description: 'Адрес школы, график работы, телефон и карта проезда.',
-		},
-		'order.html': {
-			title: 'Запись на пробный урок — Fluent Self',
-			description: 'Бесплатный пробный урок — заполните форму, мы свяжемся с вами.',
-		},
-		'events.html': {
-			title: 'Мероприятия — Fluent Self',
-			description: 'Языковые клубы, встречи и события школы Fluent Self.',
-		},
-		'photo.html': {
-			title: 'Фотографии — Fluent Self',
-			description: 'Интерьеры школы и атмосфера занятий Fluent Self.',
-		},
-		'privacy.html': {
-			title: 'Политика конфиденциальности — Fluent Self',
-			description: 'Политика обработки персональных данных Fluent Self.',
-		},
-	};
+	const seoPages = window.SEO_DATA?.pages || {};
+	const PAGE_META = Object.fromEntries(
+		Object.entries(seoPages).map(([k, v]) => [k, { title: v.title, description: v.description }]),
+	);
 
 	const page = (() => {
 		let segment = location.pathname.split('/').filter(Boolean).pop();
@@ -58,16 +17,22 @@
 		return segment;
 	})();
 	const meta = PAGE_META[page] || PAGE_META['index.html'];
+	const seoPage = seoPages[page] || seoPages['index.html'];
+	const siteUrl = (cfg.siteUrl || window.SEO_DATA?.defaultSiteUrl || '').replace(/\/$/, '');
 
 	document.title = meta.title;
 	setMeta('description', meta.description);
+	if (seoPage?.keywords) setMeta('keywords', seoPage.keywords);
+	setMeta('robots', seoPage?.robots || 'index, follow');
+	setMeta('og:locale', window.SEO_DATA?.locale || 'ru_RU', 'property');
+	setMeta('og:site_name', cfg.name || 'Fluent Self', 'property');
 	setMeta('og:title', meta.title, 'property');
 	setMeta('og:description', meta.description, 'property');
 	setMeta('twitter:title', meta.title);
 	setMeta('twitter:description', meta.description);
 
-	if (cfg.siteUrl) {
-		const url = cfg.siteUrl.replace(/\/$/, '') + location.pathname.replace(/index\.html$/, '');
+	if (siteUrl) {
+		const url = page === 'index.html' ? `${siteUrl}/` : `${siteUrl}/${page}`;
 		setMeta('og:url', url, 'property');
 		let link = document.querySelector('link[rel="canonical"]');
 		if (!link) {
@@ -81,10 +46,12 @@
 	if (cfg.ogImage) {
 		const img = cfg.ogImage.startsWith('http')
 			? cfg.ogImage
-			: `${(cfg.siteUrl || '').replace(/\/$/, '')}/${cfg.ogImage.replace(/^\//, '')}`;
+			: `${siteUrl}/${cfg.ogImage.replace(/^\//, '')}`;
 		setMeta('og:image', img, 'property');
 		setMeta('twitter:image', img);
 	}
+
+	injectVerificationMeta(cfg);
 
 	if (cfg.brandCover) {
 		document.querySelectorAll('[data-site-brand-cover]').forEach((el) => {
@@ -106,7 +73,8 @@
 		initAccessibility();
 		initCookie();
 		initContactButtons();
-		injectJsonLd();
+		injectJsonLd(seoPage, siteUrl);
+		injectAnalytics(cfg);
 	}
 
 	if (document.getElementById('site-chrome')) {
@@ -358,16 +326,73 @@
 		});
 	}
 
-	function injectJsonLd() {
+	function injectVerificationMeta(c) {
+		if (c.verification?.yandex) setMeta('yandex-verification', c.verification.yandex);
+		if (c.verification?.google) setMeta('google-site-verification', c.verification.google);
+	}
+
+	function injectAnalytics(c) {
+		const ymId = String(c.metrika?.yandexId || '').trim();
+		if (ymId && /^\d+$/.test(ymId) && !document.getElementById('yandex-metrika')) {
+			window.ym =
+				window.ym ||
+				function () {
+					(window.ym.a = window.ym.a || []).push(arguments);
+				};
+			window.ym.l = Date.now();
+			const s = document.createElement('script');
+			s.id = 'yandex-metrika';
+			s.async = true;
+			s.src = 'https://mc.yandex.ru/metrika/tag.js';
+			document.head.appendChild(s);
+			window.ym(Number(ymId), 'init', {
+				clickmap: true,
+				trackLinks: true,
+				accurateTrackBounce: true,
+				webvisor: true,
+			});
+		}
+
+		const gaId = String(c.analytics?.googleId || '').trim();
+		if (gaId && gaId.startsWith('G-') && !document.getElementById('google-gtag')) {
+			const g = document.createElement('script');
+			g.id = 'google-gtag';
+			g.async = true;
+			g.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+			document.head.appendChild(g);
+			window.dataLayer = window.dataLayer || [];
+			window.gtag = function gtag() {
+				window.dataLayer.push(arguments);
+			};
+			window.gtag('js', new Date());
+			window.gtag('config', gaId);
+		}
+	}
+
+	function injectJsonLd(seoPage, siteUrl) {
 		if (!cfg.address) return;
-		const data = {
+
+		const image = cfg.ogImage
+			? cfg.ogImage.startsWith('http')
+				? cfg.ogImage
+				: `${siteUrl}/${cfg.ogImage.replace(/^\//, '')}`
+			: undefined;
+
+		const sameAs = Object.values(cfg.social || {}).filter((u) => u && u !== '#');
+
+		const school = {
 			'@context': 'https://schema.org',
 			'@type': 'LanguageSchool',
+			'@id': siteUrl ? `${siteUrl}/#school` : undefined,
 			name: cfg.name,
 			description: meta.description,
 			telephone: cfg.phone,
 			email: cfg.email,
-			url: cfg.siteUrl || undefined,
+			url: siteUrl || undefined,
+			image,
+			logo: image,
+			sameAs: sameAs.length ? sameAs : undefined,
+			openingHours: cfg.hours || undefined,
 			address: {
 				'@type': 'PostalAddress',
 				streetAddress: cfg.address,
@@ -375,9 +400,40 @@
 				addressCountry: 'RU',
 			},
 		};
-		const script = document.createElement('script');
-		script.type = 'application/ld+json';
-		script.textContent = JSON.stringify(data);
-		document.head.appendChild(script);
+
+		const website = siteUrl
+			? {
+					'@context': 'https://schema.org',
+					'@type': 'WebSite',
+					'@id': `${siteUrl}/#website`,
+					url: siteUrl,
+					name: cfg.name,
+					description: seoPages['index.html']?.description,
+					inLanguage: 'ru-RU',
+					publisher: { '@id': `${siteUrl}/#school` },
+				}
+			: null;
+
+		const crumbs = seoPage?.breadcrumb;
+		const breadcrumb =
+			crumbs?.length && siteUrl
+				? {
+						'@context': 'https://schema.org',
+						'@type': 'BreadcrumbList',
+						itemListElement: crumbs.map((c, i) => ({
+							'@type': 'ListItem',
+							position: i + 1,
+							name: c.name,
+							item: c.path === 'index.html' ? `${siteUrl}/` : `${siteUrl}/${c.path}`,
+						})),
+					}
+				: null;
+
+		[school, website, breadcrumb].filter(Boolean).forEach((data) => {
+			const script = document.createElement('script');
+			script.type = 'application/ld+json';
+			script.textContent = JSON.stringify(data);
+			document.head.appendChild(script);
+		});
 	}
 })();

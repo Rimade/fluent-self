@@ -19,10 +19,20 @@ const SITE_CONFIG = {
 		telegram: '',
 	},
 	telegram: { botToken: '', chatId: '', enabled: false },
-	siteUrl: '',
+	siteUrl: 'https://fluentself.ru',
 	ogImage: 'assets/brand/fluent-self-cover.png',
 	brandCover: 'assets/brand/fluent-self-cover.png',
 	year: 2026,
+	verification: {
+		yandex: '', // код из Яндекс.Вебмастера
+		google: '', // код из Google Search Console
+	},
+	metrika: {
+		yandexId: '', // например 12345678
+	},
+	analytics: {
+		googleId: '', // например G-XXXXXXXXXX
+	},
 	map: {
 		yandexEmbed:
 			'https://yandex.ru/map-widget/v1/?ll=37.617635%2C55.755814&z=14&l=map&pt=37.617635%2C55.755814%2Cpm2rdm',

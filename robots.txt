@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
 
-Sitemap: /sitemap.xml
+# Служебные и черновики
+Disallow: /_ref-
+Disallow: /scripts/
+
+Sitemap: https://fluentself.ru/sitemap.xml
+Host: https://fluentself.ru
