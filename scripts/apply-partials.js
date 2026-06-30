@@ -21,9 +21,21 @@ function extractPartials(html) {
 	}
 
 	fs.mkdirSync(PARTIALS, { recursive: true });
-	fs.writeFileSync(path.join(PARTIALS, 'chrome.html'), html.slice(chromeStart, mainStart).trim() + '\n', 'utf8');
-	fs.writeFileSync(path.join(PARTIALS, 'footer.html'), html.slice(footerStart, footerEnd).trim() + '\n', 'utf8');
-	fs.writeFileSync(path.join(PARTIALS, 'icons.svg'), html.slice(svgStart, svgEnd).trim() + '\n', 'utf8');
+	fs.writeFileSync(
+		path.join(PARTIALS, 'chrome.html'),
+		html.slice(chromeStart, mainStart).trim() + '\n',
+		'utf8',
+	);
+	fs.writeFileSync(
+		path.join(PARTIALS, 'footer.html'),
+		html.slice(footerStart, footerEnd).trim() + '\n',
+		'utf8',
+	);
+	fs.writeFileSync(
+		path.join(PARTIALS, 'icons.svg'),
+		html.slice(svgStart, svgEnd).trim() + '\n',
+		'utf8',
+	);
 	console.log('  extracted partials/');
 }
 
@@ -31,7 +43,8 @@ function patchPage(html) {
 	let out = html;
 
 	if (!out.includes('id="site-chrome"')) {
-		const hadChrome = /<a href="#main-content"[\s\S]*?(?=<div id="main-content"|<main id="main-content")/.test(out);
+		const hadChrome =
+			/<a href="#main-content"[\s\S]*?(?=<div id="main-content"|<main id="main-content")/.test(out);
 		if (hadChrome) {
 			out = out.replace(
 				/<a href="#main-content"[\s\S]*?(?=<div id="main-content"|<main id="main-content")/,
@@ -52,13 +65,23 @@ function patchPage(html) {
 	out = out.replace(/<footer[\s\S]*?<\/footer>/, '<div id="site-footer"></div>');
 	out = out.replace(/<svg aria-hidden="true"[\s\S]*?<\/svg>/, '<div id="site-icons"></div>');
 
-	out = out.replace(/\s*<script src="https:\/\/cdn\.jsdelivr\.net\/combine[^>]*><\/script>\s*/g, '\n');
+	out = out.replace(
+		/\s*<script src="https:\/\/cdn\.jsdelivr\.net\/combine[^>]*><\/script>\s*/g,
+		'\n',
+	);
 	out = out.replace(/\s*<script src="assets\/js\/index\.min\.js"><\/script>\s*/g, '\n');
 
 	if (usesPartials && !out.includes('js/layout.js')) {
 		out = out.replace(
 			/<script src="js\/telegram\.js"><\/script>/,
 			'<script src="js/telegram.js"></script>\n  <script src="js/layout.js"></script>',
+		);
+	}
+
+	if (!out.includes('js/content.js') && out.includes('js/config.js')) {
+		out = out.replace(
+			/<script src="js\/config\.js"><\/script>/,
+			'<script src="js/config.js"></script>\n  <script src="js/content.js"></script>',
 		);
 	}
 
@@ -81,7 +104,9 @@ if (indexHtml.includes('<a href="#main-content"') && indexHtml.includes('<footer
 	console.log('  skip extract (partials already in use)');
 }
 
-for (const file of fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !f.startsWith('_ref'))) {
+for (const file of fs
+	.readdirSync(ROOT)
+	.filter((f) => f.endsWith('.html') && !f.startsWith('_ref'))) {
 	const p = path.join(ROOT, file);
 	const next = patchPage(fs.readFileSync(p, 'utf8'));
 	fs.writeFileSync(p, next, 'utf8');

@@ -45,9 +45,18 @@
 			title: 'Фотографии — Fluent Self',
 			description: 'Интерьеры школы и атмосфера занятий Fluent Self.',
 		},
+		'privacy.html': {
+			title: 'Политика конфиденциальности — Fluent Self',
+			description: 'Политика обработки персональных данных Fluent Self.',
+		},
 	};
 
-	const page = location.pathname.split('/').pop() || 'index.html';
+	const page = (() => {
+		let segment = location.pathname.split('/').filter(Boolean).pop();
+		if (!segment) return 'index.html';
+		if (!segment.includes('.')) return `${segment}.html`;
+		return segment;
+	})();
 	const meta = PAGE_META[page] || PAGE_META['index.html'];
 
 	document.title = meta.title;
