@@ -132,6 +132,11 @@
 			a.href = cfg.phoneHref;
 		});
 
+		document.querySelectorAll('.fs-header__phone, .fs-mobile-menu__phone').forEach((a) => {
+			a.textContent = cfg.phone;
+			a.href = cfg.phoneHref;
+		});
+
 		document.querySelectorAll('a[href*="whatsapp.com"], a[href*="wa.me"]').forEach((a) => {
 			if (cfg.whatsapp) a.href = cfg.whatsapp;
 			else {
