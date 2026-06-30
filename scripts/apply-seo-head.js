@@ -20,9 +20,7 @@ function headBlock(file, meta) {
 	const robots = meta.robots || 'index, follow';
 	const ogImage = `${BASE}/assets/brand/fluent-self-cover.png`;
 	const url = canonical(file);
-	const keywords = meta.keywords
-		? `  <meta name="keywords" content="${meta.keywords}">\n`
-		: '';
+	const keywords = meta.keywords ? `  <meta name="keywords" content="${meta.keywords}">\n` : '';
 
 	return `  <title>${meta.title}</title>
   <meta name="description" content="${meta.description}">
@@ -42,7 +40,9 @@ ${keywords}  <meta name="robots" content="${robots}">
   <meta name="twitter:image" content="${ogImage}">`;
 }
 
-for (const file of fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !f.startsWith('_ref'))) {
+for (const file of fs
+	.readdirSync(ROOT)
+	.filter((f) => f.endsWith('.html') && !f.startsWith('_ref'))) {
 	const meta = pages[file];
 	if (!meta) continue;
 
@@ -56,10 +56,7 @@ for (const file of fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !f.
 	html = html.replace(/<meta property="og:[^"]+"[^>]*>\s*/gi, '');
 	html = html.replace(/<meta name="twitter:[^"]+"[^>]*>\s*/gi, '');
 
-	html = html.replace(
-		/(<meta name="viewport"[^>]*>)/i,
-		`$1\n${headBlock(file, meta)}`,
-	);
+	html = html.replace(/(<meta name="viewport"[^>]*>)/i, `$1\n${headBlock(file, meta)}`);
 
 	if (!html.includes('js/seo-data.js')) {
 		html = html.replace(

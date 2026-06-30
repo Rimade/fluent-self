@@ -91,9 +91,7 @@ async function checkBrowser() {
 				issues.push('kids page: missing notice');
 		},
 		'privacy.html': async () => {
-			const opacity = await page.evaluate(
-				() => getComputedStyle(document.body).opacity,
-			);
+			const opacity = await page.evaluate(() => getComputedStyle(document.body).opacity);
 			if (opacity === '0') issues.push('privacy: body opacity 0');
 		},
 	};
@@ -122,8 +120,7 @@ async function checkBrowser() {
 
 		if (usesPartials && !common.menu) issues.push(`${file}: menu not loaded`);
 		if (usesPartials && !common.footer) issues.push(`${file}: footer not loaded`);
-		if (usesPartials && !common.partialsReady)
-			issues.push(`${file}: partials-ready class missing`);
+		if (usesPartials && !common.partialsReady) issues.push(`${file}: partials-ready class missing`);
 
 		if (checks[file]) await checks[file]();
 

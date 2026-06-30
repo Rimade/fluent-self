@@ -39,8 +39,7 @@
 		window.__fsBundleLoaded = true;
 
 		const vendor = document.createElement('script');
-		vendor.src =
-			'https://cdn.jsdelivr.net/combine/npm/es6-tween@5,npm/typeit@6,npm/swiper@4';
+		vendor.src = 'https://cdn.jsdelivr.net/combine/npm/es6-tween@5,npm/typeit@6,npm/swiper@4';
 		vendor.onload = () => {
 			const app = document.createElement('script');
 			app.src = 'assets/js/index.min.js';
