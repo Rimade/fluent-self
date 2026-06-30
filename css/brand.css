@@ -420,6 +420,49 @@ footer {
   color: var(--fs-muted) !important;
 }
 
+.fs-reviews {
+  background: var(--fs-surface-alt);
+  border-top: 1px solid var(--fs-line);
+  padding-bottom: var(--fs-section-y);
+}
+
+.fs-reviews .review-text {
+  color: var(--fs-ink);
+  font-style: italic;
+  line-height: 1.65;
+}
+
+.fs-reviews .review-name {
+  color: var(--fs-muted);
+}
+
+.fs-kids-notice {
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+  background: var(--fs-surface-alt);
+  border-bottom: 1px solid var(--fs-line);
+  text-align: center;
+}
+
+.fs-kids-notice .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 36em;
+}
+
+.fs-kids-notice__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fs-muted);
+}
+
+.fs-photo-gallery img {
+  filter: grayscale(100%);
+  opacity: 0.92;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

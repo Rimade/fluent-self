@@ -130,6 +130,13 @@ function patch(html, filename) {
 
 	out = out.replace(/© Fluent Self, \d{4}/g, '<span data-site-year>© Fluent Self, 2026</span>');
 
+	out = out.replace(
+		/https:\/\/firstuk\.school\/media\/[^)"']+/g,
+		'assets/brand/fluent-self-cover.png',
+	);
+	out = out.replace(/Залина Баширова,\s*<br>\s*директор школы Fisrt UK/gi, 'Команда Fluent Self,<br>руководство школы');
+	out = out.replace(/директора школы Залину/gi, 'команду школы');
+
 	return out;
 }
 

@@ -7,11 +7,14 @@
 
 	initAdultHero();
 	initHeroCta();
-	hideCelebritiesBlock();
+	purgeCelebrities();
+	replaceFirstukMedia();
 	injectPillarsSection();
 	injectKidsBanner();
 	initHeaderScroll();
 	injectPageCta();
+	initKidsPageNotice();
+	dedupeReviews();
 	updateThemeColor();
 
 	function initAdultHero() {
@@ -45,13 +48,11 @@
 		typeitHost.parentElement?.appendChild(wrap);
 	}
 
-	function hideCelebritiesBlock() {
+	function purgeCelebrities() {
 		document.querySelectorAll('[data-behavior="studentSwiper"]').forEach((el) => {
-			const block = el.closest('.border-Y');
-			if (block) block.setAttribute('data-site-hide-celebrities', '');
+			el.closest('.border-Y')?.remove();
 		});
-		const desktop = document.querySelector('.scrolling-box.--top');
-		if (desktop) desktop.setAttribute('data-site-hide-celebrities', '');
+		document.querySelector('.scrolling-box.--top')?.remove();
 	}
 
 	function injectPillarsSection() {
@@ -153,6 +154,63 @@
 			'<a href="order.html" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a>' +
 			'</div></div>';
 		footer.insertAdjacentElement('beforebegin', cta);
+	}
+
+	function purgeCelebrities() {
+		document.querySelectorAll('[data-site-hide-celebrities]').forEach((el) => el.remove());
+	}
+
+	function replaceFirstukMedia() {
+		const cover = cfg.brandCover || 'assets/brand/fluent-self-cover.png';
+		document.querySelectorAll('img[src*="firstuk"]').forEach((img) => {
+			img.src = cover;
+			img.alt = 'Fluent Self — атмосфера школы';
+			img.loading = 'lazy';
+		});
+		document.querySelectorAll('.page-cover, .ralax').forEach((el) => {
+			if (el.style.backgroundImage?.includes('firstuk')) {
+				el.setAttribute('data-site-brand-cover', '');
+				el.style.backgroundImage = `url(${cover})`;
+			}
+		});
+	}
+
+	function initKidsPageNotice() {
+		if (!location.pathname.includes('kursy-dlya-detej')) return;
+		const main = document.querySelector('[data-menu-page]');
+		if (!main || main.querySelector('.fs-kids-notice')) return;
+		const notice = document.createElement('div');
+		notice.className = 'fs-kids-notice';
+		notice.innerHTML =
+			'<div class="container"><p class="fs-kids-notice__text">' +
+			'Детские программы ведутся на отдельном сайте <strong>Fluent Self kids</strong>. ' +
+			'Ниже — краткий обзор; подробности, расписание и запись — там.</p>' +
+			'<a href="' +
+			kidsUrl +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide" target="_blank" rel="noopener">Перейти на Fluent Self kids</a></div>';
+		const cover = main.querySelector('.page-cover');
+		if (cover) cover.insertAdjacentElement('afterend', notice);
+	}
+
+	function dedupeReviews() {
+		const siema = document.querySelector('[data-behavior="siema"]');
+		if (!siema) return;
+		siema.closest('.overflow-hidden')?.classList.add('fs-reviews');
+		const names = siema.querySelectorAll('.swiper-slide .review-name');
+		const seen = new Set();
+		names.forEach((el) => {
+			const key = el.textContent.trim();
+			if (seen.has(key)) el.closest('.swiper-slide')?.remove();
+			else seen.add(key);
+		});
+		const texts = siema.parentElement?.querySelectorAll('[data-siema-item].review-text');
+		if (!texts?.length) return;
+		const seenText = new Set();
+		texts.forEach((el) => {
+			const key = el.textContent.trim().slice(0, 80);
+			if (seenText.has(key)) el.remove();
+			else seenText.add(key);
+		});
 	}
 
 	function updateThemeColor() {
