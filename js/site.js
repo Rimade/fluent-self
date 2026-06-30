@@ -13,11 +13,13 @@
 		},
 		'about.html': {
 			title: 'О школе — Fluent Self',
-			description: 'Коммуникативная методика, уютные классы и индивидуальный подход к каждому студенту.',
+			description:
+				'Коммуникативная методика, уютные классы и индивидуальный подход к каждому студенту.',
 		},
 		'kursy-dlya-vzroslyh.html': {
 			title: 'Курсы для взрослых — Fluent Self',
-			description: 'Английский, немецкий, китайский, французский и другие языки. Групповые и индивидуальные занятия.',
+			description:
+				'Английский, немецкий, китайский, французский и другие языки. Групповые и индивидуальные занятия.',
 		},
 		'kursy-dlya-detej.html': {
 			title: 'Курсы для детей — Fluent Self kids',
@@ -68,7 +70,25 @@
 	}
 
 	if (cfg.ogImage) {
-		setMeta('og:image', cfg.ogImage, 'property');
+		const img = cfg.ogImage.startsWith('http')
+			? cfg.ogImage
+			: `${(cfg.siteUrl || '').replace(/\/$/, '')}/${cfg.ogImage.replace(/^\//, '')}`;
+		setMeta('og:image', img, 'property');
+		setMeta('twitter:image', img);
+	}
+
+	if (cfg.brandCover) {
+		document.querySelectorAll('[data-site-brand-cover]').forEach((el) => {
+			el.style.backgroundImage = `url(${cfg.brandCover})`;
+		});
+	}
+
+	const touchIcon = document.querySelector('link[rel="apple-touch-icon"]');
+	if (!touchIcon && cfg.ogImage) {
+		const link = document.createElement('link');
+		link.rel = 'apple-touch-icon';
+		link.href = cfg.ogImage;
+		document.head.appendChild(link);
 	}
 
 	applyContacts();
@@ -276,7 +296,10 @@
 		});
 
 		document.querySelectorAll('.main-logo svg').forEach((svg) => {
-			svg.setAttribute('viewBox', svg.getAttribute('viewBox') || svg.getAttribute('viewbox') || '0 0 220 20');
+			svg.setAttribute(
+				'viewBox',
+				svg.getAttribute('viewBox') || svg.getAttribute('viewbox') || '0 0 220 20',
+			);
 			svg.removeAttribute('viewbox');
 			svg.setAttribute('aria-hidden', 'true');
 		});
