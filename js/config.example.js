@@ -20,8 +20,8 @@ const SITE_CONFIG = {
 	},
 	telegram: { botToken: '', chatId: '', enabled: false },
 	siteUrl: 'https://fluentself.ru',
-	ogImage: 'assets/brand/fluent-self-cover.png',
-	brandCover: 'assets/brand/fluent-self-cover.png',
+	ogImage: '/assets/brand/fluent-self-cover.png',
+	brandCover: '/assets/brand/fluent-self-cover.png',
 	year: 2026,
 	verification: {
 		yandex: '', // код из Яндекс.Вебмастера

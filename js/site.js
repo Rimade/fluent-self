@@ -59,8 +59,13 @@
 	injectVerificationMeta(cfg);
 
 	if (cfg.brandCover) {
+		const coverUrl = (() => {
+			const src = cfg.brandCover;
+			if (!src || src.startsWith('http') || src.startsWith('/')) return src;
+			return window.FS_PATHS?.asset(src) || `/${src.replace(/^\.\//, '')}`;
+		})();
 		document.querySelectorAll('[data-site-brand-cover]').forEach((el) => {
-			el.style.backgroundImage = `url(${cfg.brandCover})`;
+			el.style.backgroundImage = `url(${coverUrl})`;
 		});
 	}
 

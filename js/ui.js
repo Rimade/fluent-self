@@ -138,6 +138,7 @@
 
 	function injectKidsBanner() {
 		if (document.querySelector('.fs-kids-banner')) return;
+		if (document.querySelector('[data-menu-page][data-skip-kids-banner]')) return;
 		const anchor =
 			document.querySelector('.ralax[data-site-brand-cover]') ||
 			document.querySelector('.courses-on-home') ||
@@ -271,6 +272,7 @@
 
 	function injectPageCta() {
 		if (document.querySelector('.fs-page-cta')) return;
+		if (document.querySelector('[data-menu-page][data-skip-page-cta]')) return;
 		const main = document.querySelector('[data-menu-page]');
 		const footerHost = main?.querySelector('#site-footer, footer');
 		if (!main || !footerHost) return;
