@@ -6,6 +6,12 @@
 	if (!cfg) return;
 
 	const seoPages = window.SEO_DATA?.pages || {};
+	const siteUrl = (cfg.siteUrl || window.SEO_DATA?.defaultSiteUrl || '').replace(/\/$/, '');
+	const pageHref = (file) => window.FS_PATHS?.page(file) || file;
+	const pageUrl = (file) => {
+		if (!siteUrl) return pageHref(file);
+		return file === 'index.html' ? `${siteUrl}/` : `${siteUrl}/pages/${file}`;
+	};
 	const PAGE_META = Object.fromEntries(
 		Object.entries(seoPages).map(([k, v]) => [k, { title: v.title, description: v.description }]),
 	);
@@ -18,7 +24,6 @@
 	})();
 	const meta = PAGE_META[page] || PAGE_META['index.html'];
 	const seoPage = seoPages[page] || seoPages['index.html'];
-	const siteUrl = (cfg.siteUrl || window.SEO_DATA?.defaultSiteUrl || '').replace(/\/$/, '');
 
 	document.title = meta.title;
 	setMeta('description', meta.description);
@@ -32,7 +37,7 @@
 	setMeta('twitter:description', meta.description);
 
 	if (siteUrl) {
-		const url = page === 'index.html' ? `${siteUrl}/` : `${siteUrl}/${page}`;
+		const url = pageUrl(page);
 		setMeta('og:url', url, 'property');
 		let link = document.querySelector('link[rel="canonical"]');
 		if (!link) {
@@ -301,7 +306,7 @@
 			btn.type = 'button';
 			btn.setAttribute('aria-label', 'Связаться с нами');
 			btn.addEventListener('click', () => {
-				window.location.href = cfg.phoneHref || 'order.html';
+				window.location.href = cfg.phoneHref || pageHref('order.html');
 			});
 		});
 	}
@@ -312,7 +317,7 @@
 		bar.className = 'site-cookie';
 		bar.innerHTML = `
       <div class="site-cookie__inner">
-        <p>Мы используем cookie для работы сайта. Продолжая, вы соглашаетесь с <a href="privacy.html" class="link link-green">политикой конфиденциальности</a>.</p>
+        <p>Мы используем cookie для работы сайта. Продолжая, вы соглашаетесь с <a href="${pageHref('privacy.html')}" class="link link-green">политикой конфиденциальности</a>.</p>
         <div class="site-cookie__actions">
           <button type="button" class="site-cookie__btn site-cookie__btn--accept" data-cookie-accept>Принять</button>
         </div>
@@ -424,7 +429,7 @@
 							'@type': 'ListItem',
 							position: i + 1,
 							name: c.name,
-							item: c.path === 'index.html' ? `${siteUrl}/` : `${siteUrl}/${c.path}`,
+							item: pageUrl(c.path),
 						})),
 					}
 				: null;

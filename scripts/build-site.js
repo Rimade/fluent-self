@@ -10,14 +10,14 @@ const KIDS_SITE = 'https://fluentselfkids.ru';
 
 const PAGES = [
 	['_ref-home.html', 'index.html', 0],
-	['_ref-about.html', 'about.html', 0],
-	['_ref-adults.html', 'kursy-dlya-vzroslyh.html', 0],
-	['_ref-kids.html', 'kursy-dlya-detej.html', 0],
-	['_ref-corp.html', 'korporativnoe-obuchenie.html', 0],
-	['_ref-contacts.html', 'contacts.html', 0],
-	['_ref-order.html', 'order.html', 0],
-	['_ref-events.html', 'events.html', 0],
-	['_ref-photo.html', 'photo.html', 0],
+	['_ref-about.html', 'pages/about.html', 0],
+	['_ref-adults.html', 'pages/kursy-dlya-vzroslyh.html', 0],
+	['_ref-kids.html', 'pages/kursy-dlya-detej.html', 0],
+	['_ref-corp.html', 'pages/korporativnoe-obuchenie.html', 0],
+	['_ref-contacts.html', 'pages/contacts.html', 0],
+	['_ref-order.html', 'pages/order.html', 0],
+	['_ref-events.html', 'pages/events.html', 0],
+	['_ref-photo.html', 'pages/photo.html', 0],
 ];
 
 const SPRITE = `<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
@@ -60,9 +60,18 @@ function mapUrl(pathname) {
 function transform(html) {
 	let out = html;
 
-	out = out.replace(/https:\/\/firstuk\.school\/assets\/css\/index\.min\.css/g, 'assets/css/index.min.css');
-	out = out.replace(/https:\/\/firstuk\.school\/assets\/js\/index\.min\.js/g, 'assets/js/index.min.js');
-	out = out.replace(/https:\/\/firstuk\.school\/assets\/icons\/[^"']+/g, 'assets/icons/favicon.png');
+	out = out.replace(
+		/https:\/\/firstuk\.school\/assets\/css\/index\.min\.css/g,
+		'assets/css/index.min.css',
+	);
+	out = out.replace(
+		/https:\/\/firstuk\.school\/assets\/js\/index\.min\.js/g,
+		'assets/js/index.min.js',
+	);
+	out = out.replace(
+		/https:\/\/firstuk\.school\/assets\/icons\/[^"']+/g,
+		'assets/icons/favicon.png',
+	);
 
 	out = out.replace(/href="https:\/\/firstuk\.school"/g, 'href="index.html"');
 	out = out.replace(/<script src="https:\/\/polyfill\.io[^<]+<\/script>\s*/g, '');
@@ -75,14 +84,23 @@ function transform(html) {
 	out = out.replace(/https:\/\/firstuk\.school\/(?!media\/)([a-z0-9\-/]*)/gi, (_, p) => mapUrl(p));
 
 	out = out.replace(/\(c\) Fluent Self/g, '(c) Fluent Self');
-	out = out.replace(/Языковая школа для современных людей/g, 'Школа иностранных языков для взрослых');
-	out = out.replace(/og:site_name" content="Языковая школа"/g, 'og:site_name" content="Fluent Self"');
+	out = out.replace(
+		/Языковая школа для современных людей/g,
+		'Школа иностранных языков для взрослых',
+	);
+	out = out.replace(
+		/og:site_name" content="Языковая школа"/g,
+		'og:site_name" content="Fluent Self"',
+	);
 	out = out.replace(/<meta property="og:url" content="[^"]*">/g, '');
 	out = out.replace(/https:\/\/www\.instagram\.com\/firstukschool\//g, '#');
 	out = out.replace(/https:\/\/www\.facebook\.com\/FukschoolMoscow\//g, '#');
 	out = out.replace(/<script src="https:\/\/maps\.googleapis\.com[^<]+<\/script>\s*/g, '');
 
-	out = out.replace(/Site by <a[^>]+>Redo<\/a>/g, '<a href="' + KIDS_SITE + '" class="link link-green">Fluent Self kids</a>');
+	out = out.replace(
+		/Site by <a[^>]+>Redo<\/a>/g,
+		'<a href="' + KIDS_SITE + '" class="link link-green">Fluent Self kids</a>',
+	);
 	out = out.replace(/ООО «Ферст Юкей Скул»<br \/>\s*ИНН 9705063172/g, 'ИП — данные уточняются');
 
 	out = out.replace(

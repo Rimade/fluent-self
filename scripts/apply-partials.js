@@ -5,6 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const { listSiteHtml } = require('./lib/pages');
+
 const ROOT = path.join(__dirname, '..');
 const PARTIALS = path.join(ROOT, 'partials');
 
@@ -104,13 +106,11 @@ if (indexHtml.includes('<a href="#main-content"') && indexHtml.includes('<footer
 	console.log('  skip extract (partials already in use)');
 }
 
-for (const file of fs
-	.readdirSync(ROOT)
-	.filter((f) => f.endsWith('.html') && !f.startsWith('_ref'))) {
-	const p = path.join(ROOT, file);
+for (const rel of listSiteHtml(ROOT).filter((f) => !f.startsWith('pages/_ref'))) {
+	const p = path.join(ROOT, rel);
 	const next = patchPage(fs.readFileSync(p, 'utf8'));
 	fs.writeFileSync(p, next, 'utf8');
-	console.log('  patched', file);
+	console.log('  patched', rel);
 }
 
 console.log('Done.');

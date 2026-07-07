@@ -5,6 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const { pageCanonical } = require('./lib/pages');
+
 const ROOT = path.join(__dirname, '..');
 const BASE = (process.env.SITE_URL || 'https://fluentself.ru').replace(/\/$/, '');
 
@@ -17,7 +19,7 @@ const today = new Date().toISOString().slice(0, 10);
 
 const urls = Object.entries(pages)
 	.map(([file, meta]) => {
-		const loc = file === 'index.html' ? `${BASE}/` : `${BASE}/${file}`;
+		const loc = pageCanonical(BASE, file === 'index.html' ? 'index.html' : `pages/${file}`);
 		return `  <url>
     <loc>${loc}</loc>
     <lastmod>${today}</lastmod>

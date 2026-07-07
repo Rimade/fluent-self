@@ -1,18 +1,23 @@
 const fs = require('fs');
-const ROOT = __dirname + '/..';
+const path = require('path');
+const { listSiteHtml } = require('./lib/pages');
 
-for (const f of fs.readdirSync(ROOT).filter((x) => x.endsWith('.html') && !x.startsWith('_ref'))) {
-	let h = fs.readFileSync(`${ROOT}/${f}`, 'utf8');
+const ROOT = path.join(__dirname, '..');
+
+for (const rel of listSiteHtml(ROOT)) {
+	const p = path.join(ROOT, rel);
+	let h = fs.readFileSync(p, 'utf8');
 	let ch = false;
-	if (!h.includes('js/content.js') && h.includes('js/config.js')) {
+	const jsPrefix = rel.startsWith('pages/') ? '../js/' : 'js/';
+	if (!h.includes('js/content.js') && h.includes(`${jsPrefix}config.js`)) {
 		h = h.replace(
-			/<script src="js\/config\.js"><\/script>/,
-			'<script src="js/config.js"></script>\n  <script src="js/content.js"></script>',
+			new RegExp(`<script src="${jsPrefix.replace('/', '\\/')}config\\.js"><\\/script>`),
+			`<script src="${jsPrefix}config.js"></script>\n  <script src="${jsPrefix}content.js"></script>`,
 		);
 		ch = true;
 	}
 	if (ch) {
-		fs.writeFileSync(`${ROOT}/${f}`, h);
-		console.log('patched', f);
+		fs.writeFileSync(p, h);
+		console.log('patched', rel);
 	}
 }

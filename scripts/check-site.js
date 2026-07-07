@@ -6,14 +6,13 @@
 const fs = require('fs');
 const path = require('path');
 
+const { listSiteHtml, seoKey, pageCanonical } = require('./lib/pages');
+
 const ROOT = path.join(__dirname, '..');
 const BASE = process.env.SITE_URL || 'http://localhost:3456';
 const useBrowser = process.argv.includes('--browser');
 
-const PAGES = fs
-	.readdirSync(ROOT)
-	.filter((f) => f.endsWith('.html') && !f.startsWith('_ref'))
-	.sort();
+const PAGES = listSiteHtml(ROOT);
 
 async function fetchText(url) {
 	const res = await fetch(url, { redirect: 'follow' });
@@ -45,7 +44,7 @@ async function checkHtml() {
 		if (row.firstuk) issues.push(`${page}: contains firstuk.school`);
 		if (row.brokenPending) issues.push(`${page}: partials-pending without site-chrome`);
 		if (usesPartials && !row.layout) issues.push(`${page}: missing layout.js`);
-		if (page !== 'privacy.html' && !row.content) issues.push(`${page}: missing content.js`);
+		if (seoKey(page) !== 'privacy.html' && !row.content) issues.push(`${page}: missing content.js`);
 	}
 
 	return issues;
@@ -109,7 +108,7 @@ async function checkBrowser() {
 			path: location.pathname,
 		}));
 
-		const usesPartials = file !== 'privacy.html';
+		const usesPartials = seoKey(file) !== 'privacy.html';
 		const ok =
 			common.title.length > 5 &&
 			(!usesPartials || (common.menu && common.footer && common.partialsReady));
@@ -122,7 +121,7 @@ async function checkBrowser() {
 		if (usesPartials && !common.footer) issues.push(`${file}: footer not loaded`);
 		if (usesPartials && !common.partialsReady) issues.push(`${file}: partials-ready class missing`);
 
-		if (checks[file]) await checks[file]();
+		if (checks[seoKey(file)]) await checks[seoKey(file)]();
 
 		for (const err of consoleErrors) {
 			if (!err.includes('favicon')) issues.push(`${file} console: ${err.slice(0, 120)}`);

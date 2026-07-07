@@ -5,10 +5,12 @@
 const fs = require('fs');
 const path = require('path');
 
+const { listSiteHtml } = require('./lib/pages');
+
 const ROOT = path.join(__dirname, '..');
 const KIDS = 'https://fluentselfkids.ru';
 
-const PAGES = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !f.startsWith('_ref'));
+const PAGES = listSiteHtml(ROOT);
 
 function patch(html, filename) {
 	let out = html;
@@ -150,11 +152,11 @@ function patch(html, filename) {
 	return out;
 }
 
-for (const file of PAGES) {
-	const p = path.join(ROOT, file);
-	const next = patch(fs.readFileSync(p, 'utf8'), file);
+for (const rel of PAGES) {
+	const p = path.join(ROOT, rel);
+	const next = patch(fs.readFileSync(p, 'utf8'), path.basename(rel));
 	fs.writeFileSync(p, next, 'utf8');
-	console.log('  patched', file);
+	console.log('  patched', rel);
 }
 
 console.log('Done.');

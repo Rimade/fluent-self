@@ -5,6 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const { listSiteHtml, seoKey, pageCanonical } = require('./lib/pages');
+
 const ROOT = path.join(__dirname, '..');
 const BASE = (process.env.SITE_URL || 'https://fluentself.ru').replace(/\/$/, '');
 
@@ -12,14 +14,14 @@ const seoSrc = fs.readFileSync(path.join(ROOT, 'js', 'seo-data.js'), 'utf8');
 const match = seoSrc.match(/pages:\s*(\{[\s\S]*?\n\t\}),/);
 const pages = eval(`(${match[1]})`);
 
-function canonical(file) {
-	return file === 'index.html' ? `${BASE}/` : `${BASE}/${file}`;
+function canonical(filePath) {
+	return pageCanonical(BASE, filePath);
 }
 
-function headBlock(file, meta) {
+function headBlock(filePath, meta) {
 	const robots = meta.robots || 'index, follow';
 	const ogImage = `${BASE}/assets/brand/fluent-self-cover.png`;
-	const url = canonical(file);
+	const url = canonical(filePath);
 	const keywords = meta.keywords ? `  <meta name="keywords" content="${meta.keywords}">\n` : '';
 
 	return `  <title>${meta.title}</title>
@@ -40,13 +42,11 @@ ${keywords}  <meta name="robots" content="${robots}">
   <meta name="twitter:image" content="${ogImage}">`;
 }
 
-for (const file of fs
-	.readdirSync(ROOT)
-	.filter((f) => f.endsWith('.html') && !f.startsWith('_ref'))) {
-	const meta = pages[file];
+for (const rel of listSiteHtml(ROOT)) {
+	const meta = pages[seoKey(rel)];
 	if (!meta) continue;
 
-	let html = fs.readFileSync(path.join(ROOT, file), 'utf8');
+	let html = fs.readFileSync(path.join(ROOT, rel), 'utf8');
 	html = html.replace(/<title>[\s\S]*?<\/title>\s*/i, '');
 	html = html.replace(/<meta name="description"[^>]*>\s*/gi, '');
 	html = html.replace(/<meta name="keywords"[^>]*>\s*/gi, '');
@@ -56,17 +56,18 @@ for (const file of fs
 	html = html.replace(/<meta property="og:[^"]+"[^>]*>\s*/gi, '');
 	html = html.replace(/<meta name="twitter:[^"]+"[^>]*>\s*/gi, '');
 
-	html = html.replace(/(<meta name="viewport"[^>]*>)/i, `$1\n${headBlock(file, meta)}`);
+	html = html.replace(/(<meta name="viewport"[^>]*>)/i, `$1\n${headBlock(rel, meta)}`);
 
 	if (!html.includes('js/seo-data.js')) {
+		const jsPrefix = rel.startsWith('pages/') ? '../js/' : 'js/';
 		html = html.replace(
-			/<script src="js\/config\.js"><\/script>/,
-			'<script src="js/seo-data.js"></script>\n  <script src="js/config.js"></script>',
+			new RegExp(`<script src="${jsPrefix.replace('/', '\\/')}config\\.js"><\\/script>`),
+			`<script src="${jsPrefix}seo-data.js"></script>\n  <script src="${jsPrefix}config.js"></script>`,
 		);
 	}
 
-	fs.writeFileSync(path.join(ROOT, file), html, 'utf8');
-	console.log('  seo head:', file);
+	fs.writeFileSync(path.join(ROOT, rel), html, 'utf8');
+	console.log('  seo head:', rel);
 }
 
 console.log('Done.');

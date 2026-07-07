@@ -2,10 +2,11 @@
  * Fluent Self — загрузка partials и бандла firstuk
  */
 (function () {
+	const root = window.FS_PATHS?.root() || '.';
 	const PARTIALS = {
-		'site-chrome': 'partials/chrome.html',
-		'site-footer': 'partials/footer.html',
-		'site-icons': 'partials/icons.svg',
+		'site-chrome': `${root}/partials/chrome.html`,
+		'site-footer': `${root}/partials/footer.html`,
+		'site-icons': `${root}/partials/icons.svg`,
 	};
 
 	async function loadPartials() {
@@ -42,7 +43,7 @@
 		vendor.src = 'https://cdn.jsdelivr.net/combine/npm/es6-tween@5,npm/typeit@6,npm/swiper@4';
 		vendor.onload = () => {
 			const app = document.createElement('script');
-			app.src = 'assets/js/index.min.js';
+			app.src = `${root}/assets/js/index.min.js`;
 			document.body.appendChild(app);
 		};
 		document.body.appendChild(vendor);

@@ -45,6 +45,10 @@
 		title.after(subtitle);
 	}
 
+	function pageHref(file) {
+		return window.FS_PATHS?.page(file) || file;
+	}
+
 	function initHeroCta() {
 		const hero = document.querySelector('.home-hero');
 		const typeitHost = hero?.querySelector('[data-behavior="typeit"]');
@@ -53,8 +57,12 @@
 		const wrap = document.createElement('div');
 		wrap.className = 'fs-hero-cta';
 		wrap.innerHTML =
-			'<a href="order.html" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Бесплатный пробный урок</a>' +
-			'<a href="kursy-dlya-vzroslyh.html" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Смотреть курсы</a>' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Бесплатный пробный урок</a>' +
+			'<a href="' +
+			pageHref('kursy-dlya-vzroslyh.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Смотреть курсы</a>' +
 			'<p class="fs-hero-cta__note">Группы до 6 человек · носители языка · удобный график</p>';
 		typeitHost.parentElement?.appendChild(wrap);
 	}
@@ -67,7 +75,7 @@
 	}
 
 	function replaceFirstukMedia() {
-		const cover = (window.SITE_CONFIG || {}).brandCover || 'assets/brand/fluent-self-cover.png';
+		const cover = (window.SITE_CONFIG || {}).brandCover || '/assets/brand/fluent-self-cover.png';
 		document.querySelectorAll('img[src*="firstuk"]').forEach((img) => {
 			img.src = cover;
 			img.alt = 'Fluent Self — атмосфера школы';
@@ -277,7 +285,9 @@
 			'<p class="fs-page-cta__label ff-graphik tracking-wide">Первый шаг</p>' +
 			'<h2 class="fs-page-cta__title">Запишитесь на бесплатный пробный урок</h2>' +
 			'<p class="fs-page-cta__text">Познакомьтесь со школой, преподавателем и форматом занятий — без обязательств.</p></div>' +
-			'<a href="order.html" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a></div></div>';
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a></div></div>';
 		footerHost.insertAdjacentElement('beforebegin', cta);
 	}
 
@@ -353,7 +363,9 @@
 					'</dd></div><div><dt class="ff-graphik fz-caps tracking-wide">Во сколько</dt><dd>' +
 					e.time +
 					'</dd></div></dl>' +
-					'<a href="order.html" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a>' +
+					'<a href="' +
+					pageHref('order.html') +
+					'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a>' +
 					'</div></div></div></article>',
 			)
 			.join('');

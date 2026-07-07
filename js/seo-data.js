@@ -1,6 +1,26 @@
 /**
  * Fluent Self — SEO: заголовки, описания, хлебные крошки (редактировать здесь)
  */
+window.FS_PATHS = {
+	inPages() {
+		return location.pathname.includes('/pages/');
+	},
+	root() {
+		return this.inPages() ? '..' : '.';
+	},
+	page(file) {
+		if (file === 'index.html') return this.inPages() ? '../index.html' : './';
+		return this.inPages() ? file : `pages/${file}`;
+	},
+	pageUrl(file) {
+		return file === 'index.html' ? '/' : `/pages/${file}`;
+	},
+	asset(rel) {
+		const r = rel.replace(/^\//, '');
+		return `${this.inPages() ? '../' : ''}${r}`;
+	},
+};
+
 window.SEO_DATA = {
 	defaultSiteUrl: 'https://fluentself.ru',
 	locale: 'ru_RU',
