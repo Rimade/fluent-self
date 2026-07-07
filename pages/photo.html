@@ -30,8 +30,7 @@
 
   <meta name="theme-color" content="#000000">
 
-  <!-- 192x192 -->
-  <link rel="icon" href="../assets/icons/favicon.svg" type="image/svg+xml"><!-- 32x32 -->
+  <link rel="icon" href="../assets/icons/favicon.svg" type="image/svg+xml">
 
   <link href="../assets/css/index.min.css" rel="stylesheet">
   <link href="../css/site.css" rel="stylesheet">
@@ -41,41 +40,13 @@
 <body>
   <div id="site-chrome"></div>
 
-  <div id="main-content" data-menu-page>
-    <div class="container fs-photo-gallery">
-
-      <div class="row mb-50 sm:mb-150">
-        <div class="col-12">
-          <img class="block w-full" src="../assets/brand/fluent-self-cover.png" alt="Интерьер школы Fluent Self">
-        </div>
-      </div>
-
-      <div class="row mb-50 sm:mb-150">
-        <div class="col-12">
-          <img class="block w-full" src="../assets/brand/fluent-self-cover.png" alt="Интерьер школы Fluent Self">
-        </div>
-      </div>
-
-      <div class="row mb-50 sm:mb-150">
-        <div class="col-12">
-          <img class="block w-full" src="../assets/brand/fluent-self-cover.png" alt="Интерьер школы Fluent Self">
-        </div>
-      </div>
-
-      <div class="row mb-50 sm:mb-150 justify-end">
-        <div class="col-11 sm:col-9">
-          <img class="block w-full" src="../assets/brand/fluent-self-cover.png" alt="Интерьер школы Fluent Self">
-          <div class="pt-10 fz-xs ff-italic"></div>
-        </div>
-      </div>
-
-      <div class="row mb-50 sm:mb-150">
-        <div class="col-12">
-          <img class="block w-full" src="../assets/brand/fluent-self-cover.png" alt="Интерьер школы Fluent Self">
-        </div>
-      </div>
-
+  <div id="main-content" data-menu-page class="fs-page--photo">
+    <div class="page-cover relative" data-site-brand-cover
+      style="background-image: url(/assets/brand/fluent-self-cover.png)">
+      <div class="absolute pin fz-lg fg-white uppercase">Фотографии</div>
     </div>
+
+    <section class="fs-photo-gallery" data-site-photos aria-label="Галерея школы"></section>
 
     <div id="site-footer"></div>
   </div>

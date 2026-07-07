@@ -24,6 +24,7 @@
 		initKidsPageNotice();
 		renderReviews();
 		renderEventsPage();
+		renderPhotosPage();
 		populateTrialCourses();
 		updateThemeColor();
 	}
@@ -390,6 +391,39 @@
 			'<div class="container"><h2 id="fs-events-past-title" class="fs-events-past__heading fz-lg uppercase sm:text-center">Форматы встреч</h2></div>' +
 			past +
 			'<p class="fs-events-past__note container">Расписание обновляется — следите за анонсами или запишитесь на пробный урок.</p></section>';
+	}
+
+	function renderPhotosPage() {
+		const host = document.querySelector('[data-site-photos]');
+		const items = window.SITE_CONTENT?.photos;
+		if (!host || !items?.length) return;
+
+		const asset = (src) => {
+			if (!src || src.startsWith('http') || src.startsWith('/')) return src;
+			return window.FS_PATHS?.asset(src) || src;
+		};
+
+		host.innerHTML =
+			'<div class="container"><div class="fs-photo-grid">' +
+			items
+				.map(
+					(p) =>
+						'<figure class="fs-photo-item' +
+						(p.wide ? ' fs-photo-item--wide' : '') +
+						'"><img src="' +
+						asset(p.src) +
+						'" alt="' +
+						p.alt +
+						'" loading="lazy" decoding="async" style="object-position:' +
+						(p.position || 'center') +
+						'">' +
+						(p.caption
+							? '<figcaption class="fs-photo-item__caption">' + p.caption + '</figcaption>'
+							: '') +
+						'</figure>',
+				)
+				.join('') +
+			'</div><p class="fs-photo-note">Фотографии обновляются — скоро добавим больше снимков школы.</p></div>';
 	}
 
 	function populateTrialCourses() {

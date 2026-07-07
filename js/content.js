@@ -26,6 +26,39 @@ window.SITE_CONTENT = {
 			},
 		],
 	},
+	photos: [
+		{
+			src: '/assets/brand/fluent-self-cover.png',
+			alt: 'Класс для занятий Fluent Self',
+			caption: 'Класс для занятий',
+			position: 'center 35%',
+		},
+		{
+			src: '/assets/brand/fluent-self-cover.png',
+			alt: 'Зона ожидания Fluent Self',
+			caption: 'Зона ожидания',
+			position: '70% center',
+			wide: true,
+		},
+		{
+			src: '/assets/brand/fluent-self-cover.png',
+			alt: 'Пространство школы Fluent Self',
+			caption: 'Пространство школы',
+			position: '25% 60%',
+		},
+		{
+			src: '/assets/brand/fluent-self-cover.png',
+			alt: 'Атмосфера занятий Fluent Self',
+			caption: 'Атмосфера занятий',
+			position: 'center 70%',
+		},
+		{
+			src: '/assets/brand/fluent-self-cover.png',
+			alt: 'Интерьер Fluent Self',
+			caption: 'Интерьер школы',
+			position: '40% center',
+		},
+	],
 	trialCourses: [
 		{ value: 'Английский', label: 'Английский' },
 		{ value: 'Немецкий', label: 'Немецкий' },
