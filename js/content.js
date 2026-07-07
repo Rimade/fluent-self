@@ -26,39 +26,60 @@ window.SITE_CONTENT = {
 			},
 		],
 	},
-	photos: [
-		{
-			src: '/assets/brand/fluent-self-cover.png',
-			alt: 'Класс для занятий Fluent Self',
-			caption: 'Класс для занятий',
-			position: 'center 35%',
+	photos: {
+		hero: {
+			eyebrow: 'Интерьеры и атмосфера',
+			title: 'Место, где слышно',
+			lead: 'Свет, тишина и детали — то, что не передаёт экран, но чувствуется с порога.',
 		},
-		{
-			src: '/assets/brand/fluent-self-cover.png',
-			alt: 'Зона ожидания Fluent Self',
-			caption: 'Зона ожидания',
-			position: '70% center',
-			wide: true,
-		},
-		{
-			src: '/assets/brand/fluent-self-cover.png',
-			alt: 'Пространство школы Fluent Self',
-			caption: 'Пространство школы',
-			position: '25% 60%',
-		},
-		{
-			src: '/assets/brand/fluent-self-cover.png',
-			alt: 'Атмосфера занятий Fluent Self',
-			caption: 'Атмосфера занятий',
-			position: 'center 70%',
-		},
-		{
-			src: '/assets/brand/fluent-self-cover.png',
-			alt: 'Интерьер Fluent Self',
-			caption: 'Интерьер школы',
-			position: '40% center',
-		},
-	],
+		intro:
+			'Мы собрали кадры школы так, как её видят студенты: без постановки, с акцентом на воздух, текстуры и спокойный ритм занятий.',
+		tags: ['Светлые классы', 'Зона ожидания', 'Кофе и книги', 'Небольшие группы'],
+		items: [
+			{
+				src: '/assets/brand/fluent-self-cover.png',
+				alt: 'Главный класс Fluent Self',
+				caption: 'Главный класс',
+				hint: 'Утренний свет',
+				position: 'center 30%',
+				layout: 'featured',
+			},
+			{
+				src: '/assets/brand/fluent-self-cover.png',
+				alt: 'Зона ожидания Fluent Self',
+				caption: 'Зона ожидания',
+				hint: 'Перед уроком',
+				position: '75% 40%',
+				layout: 'portrait',
+			},
+			{
+				src: '/assets/brand/fluent-self-cover.png',
+				alt: 'Детали интерьера Fluent Self',
+				caption: 'Детали',
+				hint: 'Текстуры',
+				position: '20% 55%',
+				layout: 'square',
+			},
+			{
+				src: '/assets/brand/fluent-self-cover.png',
+				alt: 'Пространство для занятий Fluent Self',
+				caption: 'Пространство для занятий',
+				hint: 'Панорама',
+				position: 'center 60%',
+				layout: 'panorama',
+			},
+			{
+				src: '/assets/brand/fluent-self-cover.png',
+				alt: 'Атмосфера школы Fluent Self',
+				caption: 'Атмосфера',
+				hint: 'Вечер',
+				position: '40% center',
+				layout: 'accent',
+			},
+		],
+		quote:
+			'Хорошая языковая школа начинается с пространства — с того, насколько легко здесь открыть рот и не бояться ошибиться.',
+	},
 	trialCourses: [
 		{ value: 'Английский', label: 'Английский' },
 		{ value: 'Немецкий', label: 'Немецкий' },

@@ -19,12 +19,12 @@
 		replaceFirstukMedia();
 		injectPillarsSection();
 		injectKidsBanner();
+		renderPhotosPage();
 		initFsHeader();
 		injectPageCta();
 		initKidsPageNotice();
 		renderReviews();
 		renderEventsPage();
-		renderPhotosPage();
 		populateTrialCourses();
 		updateThemeColor();
 	}
@@ -165,8 +165,7 @@
 		if (!header) return;
 
 		const main = document.querySelector('[data-menu-page]');
-		const first = main?.firstElementChild;
-		const overlayPage = first?.matches('.page-cover');
+		const overlayPage = !!main?.querySelector('.page-cover, .fs-photo-hero');
 
 		if (overlayPage) {
 			header.classList.add('fs-header--overlay');
@@ -394,36 +393,174 @@
 	}
 
 	function renderPhotosPage() {
-		const host = document.querySelector('[data-site-photos]');
-		const items = window.SITE_CONTENT?.photos;
-		if (!host || !items?.length) return;
+		const host = document.querySelector('[data-site-photo-page]');
+		const data = window.SITE_CONTENT?.photos;
+		if (!host || !data?.items?.length) return;
 
 		const asset = (src) => {
 			if (!src || src.startsWith('http') || src.startsWith('/')) return src;
 			return window.FS_PATHS?.asset(src) || src;
 		};
 
+		const hero = data.hero || {};
+		const tags = (data.tags || [])
+			.map((t) => '<li class="fs-photo-tag ff-graphik tracking-wide">' + t + '</li>')
+			.join('');
+
+		const cardHtml = data.items
+			.map((p, i) => {
+				const layout = p.layout || 'square';
+				return (
+					'<button type="button" class="fs-photo-card fs-photo-card--' +
+					layout +
+					' fs-photo-reveal" data-photo-index="' +
+					i +
+					'" aria-label="Открыть: ' +
+					p.caption +
+					'">' +
+					'<span class="fs-photo-card__frame">' +
+					'<img src="' +
+					asset(p.src) +
+					'" alt="' +
+					p.alt +
+					'" loading="' +
+					(i < 2 ? 'eager' : 'lazy') +
+					'" decoding="async" style="object-position:' +
+					(p.position || 'center') +
+					'">' +
+					'<span class="fs-photo-card__veil" aria-hidden="true"></span>' +
+					'<span class="fs-photo-card__meta">' +
+					'<span class="fs-photo-card__hint ff-graphik tracking-wide">' +
+					(p.hint || '') +
+					'</span>' +
+					'<span class="fs-photo-card__caption">' +
+					p.caption +
+					'</span>' +
+					'</span></span></button>'
+				);
+			})
+			.join('');
+
+		const quoteBlock = data.quote
+			? '<blockquote class="fs-photo-quote fs-photo-reveal"><p>' + data.quote + '</p></blockquote>'
+			: '';
+
 		host.innerHTML =
-			'<div class="container"><div class="fs-photo-grid">' +
-			items
-				.map(
-					(p) =>
-						'<figure class="fs-photo-item' +
-						(p.wide ? ' fs-photo-item--wide' : '') +
-						'"><img src="' +
-						asset(p.src) +
-						'" alt="' +
-						p.alt +
-						'" loading="lazy" decoding="async" style="object-position:' +
-						(p.position || 'center') +
-						'">' +
-						(p.caption
-							? '<figcaption class="fs-photo-item__caption">' + p.caption + '</figcaption>'
-							: '') +
-						'</figure>',
-				)
-				.join('') +
-			'</div><p class="fs-photo-note">Фотографии обновляются — скоро добавим больше снимков школы.</p></div>';
+			'<header class="fs-photo-hero" data-site-brand-cover style="background-image:url(/assets/brand/fluent-self-cover.png)">' +
+			'<div class="fs-photo-hero__grain" aria-hidden="true"></div>' +
+			'<div class="container fs-photo-hero__inner">' +
+			'<p class="fs-photo-hero__eyebrow ff-graphik tracking-wide">' +
+			(hero.eyebrow || 'Фотографии') +
+			'</p>' +
+			'<h1 class="fs-photo-hero__title">' +
+			(hero.title || 'Фотографии') +
+			'</h1>' +
+			'<p class="fs-photo-hero__lead">' +
+			(hero.lead || '') +
+			'</p>' +
+			'<div class="fs-photo-hero__index" aria-hidden="true">01</div>' +
+			'</div>' +
+			'<div class="fs-photo-hero__scroll" aria-hidden="true"><span></span></div>' +
+			'</header>' +
+			'<section class="fs-photo-intro">' +
+			'<div class="container fs-photo-intro__grid">' +
+			'<p class="fs-photo-intro__text fs-photo-reveal">' +
+			data.intro +
+			'</p>' +
+			'<ul class="fs-photo-tags fs-photo-reveal">' +
+			tags +
+			'</ul>' +
+			'</div></section>' +
+			'<section class="fs-photo-mosaic" aria-label="Галерея">' +
+			'<div class="container"><div class="fs-photo-mosaic__grid">' +
+			cardHtml +
+			quoteBlock +
+			'</div></div></section>' +
+			'<section class="fs-photo-outro">' +
+			'<div class="container"><div class="fs-photo-outro__inner fs-photo-reveal">' +
+			'<p class="fs-photo-outro__label ff-graphik tracking-wide">Приходите сами</p>' +
+			'<h2 class="fs-photo-outro__title">Лучше один раз увидеть атмосферу</h2>' +
+			'<p class="fs-photo-outro__text">Запишитесь на бесплатный пробный урок — познакомьтесь со школой, преподавателем и пространством.</p>' +
+			'<div class="fs-photo-outro__actions">' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a>' +
+			'<a href="' +
+			pageHref('contacts.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Как добраться</a>' +
+			'</div></div></div></section>';
+
+		initPhotoGallery(data, asset);
+	}
+
+	function initPhotoGallery(data, asset) {
+		const cards = document.querySelectorAll('.fs-photo-card');
+		if (!cards.length) return;
+
+		let lightbox = document.querySelector('.fs-photo-lightbox');
+		if (!lightbox) {
+			lightbox = document.createElement('div');
+			lightbox.className = 'fs-photo-lightbox';
+			lightbox.hidden = true;
+			lightbox.innerHTML =
+				'<div class="fs-photo-lightbox__backdrop" data-photo-close tabindex="-1"></div>' +
+				'<div class="fs-photo-lightbox__panel" role="dialog" aria-modal="true" aria-label="Просмотр фотографии">' +
+				'<button type="button" class="fs-photo-lightbox__close" data-photo-close aria-label="Закрыть">×</button>' +
+				'<figure class="fs-photo-lightbox__figure">' +
+				'<img class="fs-photo-lightbox__img" alt="">' +
+				'<figcaption class="fs-photo-lightbox__caption"></figcaption>' +
+				'</figure></div>';
+			document.body.appendChild(lightbox);
+		}
+
+		const lbImg = lightbox.querySelector('.fs-photo-lightbox__img');
+		const lbCap = lightbox.querySelector('.fs-photo-lightbox__caption');
+
+		const openAt = (index) => {
+			const item = data.items[index];
+			if (!item) return;
+			lbImg.src = asset(item.src);
+			lbImg.alt = item.alt;
+			lbCap.textContent = item.caption;
+			lightbox.hidden = false;
+			document.body.style.overflow = 'hidden';
+			lightbox.querySelector('.fs-photo-lightbox__close')?.focus();
+		};
+
+		const closeLb = () => {
+			lightbox.hidden = true;
+			document.body.style.overflow = '';
+		};
+
+		cards.forEach((card) => {
+			card.addEventListener('click', () => openAt(Number(card.dataset.photoIndex)));
+		});
+
+		lightbox.querySelectorAll('[data-photo-close]').forEach((el) => {
+			el.addEventListener('click', closeLb);
+		});
+
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && !lightbox.hidden) closeLb();
+		});
+
+		if (!window.__fsPhotoIO) {
+			window.__fsPhotoIO = new IntersectionObserver(
+				(entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							entry.target.classList.add('is-visible');
+							window.__fsPhotoIO.unobserve(entry.target);
+						}
+					});
+				},
+				{ threshold: 0.15, rootMargin: '0px 0px -5% 0px' },
+			);
+		}
+
+		document.querySelectorAll('.fs-photo-reveal:not(.is-visible)').forEach((el) => {
+			window.__fsPhotoIO.observe(el);
+		});
 	}
 
 	function populateTrialCourses() {
