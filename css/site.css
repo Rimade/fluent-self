@@ -33,24 +33,23 @@
 }
 
 footer iframe,
-.map iframe,
-[data-site-map] iframe {
+.map iframe {
   max-width: 100%;
   width: 100%;
-  height: min(400px, 60vw);
   border: 0;
 }
 
-[data-site-map] {
+[data-site-map]:not(.fs-footer__map) {
   position: relative;
   overflow: hidden;
   padding-bottom: min(56%, 420px);
   height: 0;
 }
 
-[data-site-map] iframe {
+[data-site-map]:not(.fs-footer__map) iframe {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   height: 100%;
 }
 

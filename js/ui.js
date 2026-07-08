@@ -398,8 +398,30 @@
 		if (!host || !data?.items?.length) return;
 
 		const asset = (src) => {
-			if (!src || src.startsWith('http') || src.startsWith('/')) return src;
-			return window.FS_PATHS?.asset(src) || src;
+			if (!src) return src;
+			if (src.startsWith('http')) return src;
+			const rel = src.replace(/^\//, '');
+			return window.FS_PATHS?.asset(rel) || src;
+		};
+
+		const photoAttrs = (local, remote) => {
+			const fallback = asset(local);
+			if (!remote) return 'src="' + fallback + '"';
+			return 'src="' + fallback + '" data-photo-remote="' + asset(remote) + '"';
+		};
+
+		const upgradeRemotePhotos = (scope) => {
+			(scope || document).querySelectorAll('img[data-photo-remote]').forEach((img) => {
+				const remote = img.dataset.photoRemote;
+				if (!remote) return;
+				const probe = new Image();
+				probe.referrerPolicy = 'no-referrer';
+				probe.onload = () => {
+					img.src = remote;
+					img.removeAttribute('data-photo-remote');
+				};
+				probe.src = remote;
+			});
 		};
 
 		const hero = data.hero || {};
@@ -419,13 +441,13 @@
 					p.caption +
 					'">' +
 					'<span class="fs-photo-card__frame">' +
-					'<img src="' +
-					asset(p.src) +
-					'" alt="' +
+					'<img ' +
+					photoAttrs(p.src, p.srcRemote) +
+					' alt="' +
 					p.alt +
 					'" loading="' +
 					(i < 2 ? 'eager' : 'lazy') +
-					'" decoding="async" style="object-position:' +
+					'" decoding="async" referrerpolicy="no-referrer" style="object-position:' +
 					(p.position || 'center') +
 					'">' +
 					'<span class="fs-photo-card__veil" aria-hidden="true"></span>' +
@@ -445,8 +467,13 @@
 			? '<blockquote class="fs-photo-quote fs-photo-reveal"><p>' + data.quote + '</p></blockquote>'
 			: '';
 
+		const heroFallback = asset(hero.image || '/assets/brand/fluent-self-cover.png');
+
 		host.innerHTML =
-			'<header class="fs-photo-hero" data-site-brand-cover style="background-image:url(/assets/brand/fluent-self-cover.png)">' +
+			'<header class="fs-photo-hero">' +
+			'<img class="fs-photo-hero__bg" ' +
+			photoAttrs(hero.image || heroFallback, hero.imageRemote) +
+			' alt="" decoding="async" referrerpolicy="no-referrer">' +
 			'<div class="fs-photo-hero__grain" aria-hidden="true"></div>' +
 			'<div class="container fs-photo-hero__inner">' +
 			'<p class="fs-photo-hero__eyebrow ff-graphik tracking-wide">' +
@@ -491,6 +518,7 @@
 			'</div></div></div></section>';
 
 		initPhotoGallery(data, asset);
+		upgradeRemotePhotos(host);
 	}
 
 	function initPhotoGallery(data, asset) {
@@ -519,7 +547,8 @@
 		const openAt = (index) => {
 			const item = data.items[index];
 			if (!item) return;
-			lbImg.src = asset(item.src);
+			const cardImg = cards[index]?.querySelector('img');
+			lbImg.src = cardImg?.currentSrc || asset(item.srcRemote || item.src);
 			lbImg.alt = item.alt;
 			lbCap.textContent = item.caption;
 			lightbox.hidden = false;

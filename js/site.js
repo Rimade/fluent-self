@@ -116,6 +116,7 @@
 		});
 
 		document.querySelectorAll('a[href*="whatsapp.com"], a[href*="wa.me"]').forEach((a) => {
+			if (a.closest('.fs-footer')) return;
 			if (cfg.whatsapp) a.href = cfg.whatsapp;
 			else {
 				const digits = (cfg.phone || '').replace(/\D/g, '');
@@ -123,6 +124,14 @@
 			}
 			a.classList.add('whatsapp-float');
 			a.setAttribute('aria-label', 'Написать в WhatsApp');
+		});
+
+		document.querySelectorAll('.fs-footer a[href*="whatsapp.com"], .fs-footer a[href*="wa.me"]').forEach((a) => {
+			if (cfg.whatsapp) a.href = cfg.whatsapp;
+			else {
+				const digits = (cfg.phone || '').replace(/\D/g, '');
+				if (digits) a.href = `https://wa.me/${digits}`;
+			}
 		});
 
 		document.querySelectorAll('[data-site-address]').forEach((el) => {
@@ -136,6 +145,12 @@
 		document.querySelectorAll('[data-site-legal]').forEach((el) => {
 			const parts = [cfg.legal?.name, cfg.legal?.inn && `ИНН ${cfg.legal.inn}`].filter(Boolean);
 			el.innerHTML = parts.join('<br />') || 'ИП — данные уточняются';
+		});
+
+		document.querySelectorAll('[data-site-email]').forEach((el) => {
+			if (!cfg.email) return;
+			el.textContent = cfg.email;
+			if (el.tagName === 'A') el.href = `mailto:${cfg.email}`;
 		});
 
 		document.querySelectorAll('[data-site-year]').forEach((el) => {
@@ -194,7 +209,27 @@
 			Telegram: social.telegram,
 		};
 
+		document.querySelectorAll('[data-site-social]').forEach((a) => {
+			const key = a.dataset.siteSocial;
+			const url = social[key];
+			if (!url) {
+				a.hidden = true;
+				return;
+			}
+			a.href = url;
+			a.hidden = false;
+			a.target = '_blank';
+			a.rel = 'noopener noreferrer';
+		});
+
+		const socialWrap = document.querySelector('[data-site-social-wrap]');
+		if (socialWrap) {
+			const visible = socialWrap.querySelector('[data-site-social]:not([hidden])');
+			socialWrap.hidden = !visible;
+		}
+
 		document.querySelectorAll('footer a').forEach((a) => {
+			if (a.dataset.siteSocial) return;
 			const label = a.textContent.trim();
 			const url = map[label];
 			if (url === undefined) return;
