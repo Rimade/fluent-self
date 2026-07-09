@@ -731,45 +731,120 @@
 		const data = window.SITE_CONTENT?.events;
 		if (!host || !data) return;
 
-		const upcoming = (data.upcoming || [])
-			.map(
-				(e) =>
-					'<article class="fs-events-upcoming"><div class="container"><div class="row"><div class="col-12 sm:col-10">' +
-					'<h2 class="fs-events-upcoming__title fz-lg uppercase">' +
+		const hero = data.hero || {};
+		const formats = data.formats || data.past || [];
+
+		const upcomingCards = (data.upcoming || [])
+			.map((e, i) => {
+				const n = String(i + 1).padStart(2, '0');
+				return (
+					'<article class="fs-events-card' +
+					(i === 0 ? ' fs-events-card--featured' : '') +
+					'">' +
+					'<div class="fs-events-card__top">' +
+					'<span class="fs-events-card__tag ff-graphik tracking-wide">' +
+					(e.tag || 'Скоро') +
+					'</span>' +
+					'<span class="fs-events-card__num ff-graphik" aria-hidden="true">' +
+					n +
+					'</span></div>' +
+					'<h2 class="fs-events-card__title">' +
 					e.title +
-					'</h2><p class="fs-events-upcoming__text fz-norm">' +
+					'</h2>' +
+					'<p class="fs-events-card__text">' +
 					e.text +
-					'</p><dl class="fs-events-meta">' +
-					'<div><dt class="ff-graphik fz-caps tracking-wide">Когда</dt><dd>' +
-					e.date +
-					'</dd></div><div><dt class="ff-graphik fz-caps tracking-wide">Во сколько</dt><dd>' +
-					e.time +
-					'</dd></div></dl>' +
+					'</p>' +
+					'<dl class="fs-events-card__meta">' +
+					'<div><dt class="ff-graphik tracking-wide">Когда</dt><dd>' +
+					(e.date || '—') +
+					'</dd></div>' +
+					'<div><dt class="ff-graphik tracking-wide">Время</dt><dd>' +
+					(e.time || '—') +
+					'</dd></div>' +
+					(e.place
+						? '<div><dt class="ff-graphik tracking-wide">Где</dt><dd>' + e.place + '</dd></div>'
+						: '') +
+					'</dl>' +
+					'<div class="fs-events-card__actions">' +
 					'<a href="' +
 					pageHref('order.html') +
-					'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a>' +
-					'</div></div></div></article>',
-			)
+					'" class="fs-events-card__cta ff-graphik tracking-wide">Записаться</a>' +
+					'<a href="' +
+					pageHref('contacts.html') +
+					'" class="fs-events-card__link">Как добраться</a>' +
+					'</div></article>'
+				);
+			})
 			.join('');
 
-		const past = (data.past || [])
-			.map(
-				(e) =>
-					'<div class="container fs-events-past__row bordered-row"><div class="row pt-45 pb-65">' +
-					'<div class="col-12 sm:col-6 mb-15 sm:mb-no"><h3 class="fz-lg uppercase">' +
+		const formatCards = formats
+			.map((e, i) => {
+				const n = String(i + 1).padStart(2, '0');
+				return (
+					'<article class="fs-events-format">' +
+					'<span class="fs-events-format__num ff-graphik" aria-hidden="true">' +
+					n +
+					'</span>' +
+					(e.tag
+						? '<span class="fs-events-format__tag ff-graphik tracking-wide">' + e.tag + '</span>'
+						: '') +
+					'<h3 class="fs-events-format__title">' +
 					e.title +
-					'</h3></div><div class="col-12 sm:col-6"><p class="fz-sm-text">' +
+					'</h3>' +
+					'<p class="fs-events-format__text">' +
 					e.text +
-					'</p></div></div></div>',
-			)
+					'</p></article>'
+				);
+			})
 			.join('');
 
+		host.className = 'fs-events-page';
 		host.innerHTML =
-			upcoming +
-			'<section class="fs-events-past" aria-labelledby="fs-events-past-title">' +
-			'<div class="container"><h2 id="fs-events-past-title" class="fs-events-past__heading fz-lg uppercase sm:text-center">Форматы встреч</h2></div>' +
-			past +
-			'<p class="fs-events-past__note container">Расписание обновляется — следите за анонсами или запишитесь на пробный урок.</p></section>';
+			'<header class="fs-events-hero">' +
+			'<div class="container fs-events-hero__inner">' +
+			'<p class="fs-events-hero__eyebrow ff-graphik tracking-wide">' +
+			(hero.eyebrow || 'Мероприятия') +
+			'</p>' +
+			'<h1 class="fs-events-hero__title">' +
+			(hero.title || 'Мероприятия') +
+			'</h1>' +
+			'<p class="fs-events-hero__lead">' +
+			(hero.lead || '') +
+			'</p></div></header>' +
+			'<section class="fs-events-upcoming" aria-labelledby="fs-events-upcoming-title">' +
+			'<div class="container">' +
+			'<div class="fs-events-section-head">' +
+			'<div><p class="fs-events-section-head__eyebrow ff-graphik tracking-wide">Календарь</p>' +
+			'<h2 id="fs-events-upcoming-title" class="fs-events-section-head__title">Ближайшие события</h2></div>' +
+			'<p class="fs-events-section-head__note">Приходите даже если ещё не учитесь у нас — открытые форматы для всех.</p>' +
+			'</div>' +
+			'<div class="fs-events-upcoming__grid">' +
+			(upcomingCards ||
+				'<p class="fs-events-empty">Сейчас нет анонсов — напишите нам, и мы подскажем ближайшую дату.</p>') +
+			'</div></div></section>' +
+			'<section class="fs-events-formats" aria-labelledby="fs-events-formats-title">' +
+			'<div class="container">' +
+			'<div class="fs-events-section-head">' +
+			'<div><p class="fs-events-section-head__eyebrow ff-graphik tracking-wide">Форматы</p>' +
+			'<h2 id="fs-events-formats-title" class="fs-events-section-head__title">Как это бывает</h2></div>' +
+			'<p class="fs-events-section-head__note">Регулярные встречи, которые помогают говорить свободнее вне урока.</p>' +
+			'</div>' +
+			'<div class="fs-events-formats__grid">' +
+			formatCards +
+			'</div></div></section>' +
+			'<section class="fs-events-outro">' +
+			'<div class="container"><div class="fs-events-outro__inner">' +
+			'<p class="fs-events-outro__label ff-graphik tracking-wide">Хотите прийти</p>' +
+			'<h2 class="fs-events-outro__title">Запишитесь — подскажем ближайшую встречу</h2>' +
+			'<p class="fs-events-outro__text">Или начните с бесплатного пробного урока: познакомитесь со школой и атмосферой.</p>' +
+			'<div class="fs-events-outro__actions">' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a>' +
+			'<a href="' +
+			pageHref('contacts.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Контакты</a>' +
+			'</div></div></div></section>';
 	}
 
 	function renderPhotosPage() {

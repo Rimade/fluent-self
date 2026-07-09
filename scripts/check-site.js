@@ -82,8 +82,11 @@ async function checkBrowser() {
 				issues.push('index: missing offers section');
 		},
 		'events.html': async () => {
-			if (!(await page.locator('.fs-events-upcoming').count()))
-				issues.push('events: missing upcoming block');
+			if (!(await page.locator('.fs-events-hero').count())) issues.push('events: missing hero');
+			if (!(await page.locator('.fs-events-card').count()))
+				issues.push('events: missing upcoming card');
+			if (!(await page.locator('.fs-events-format').count()))
+				issues.push('events: missing format cards');
 		},
 		'order.html': async () => {
 			const opts = await page.locator('[data-site-form-courses] select option').count();
