@@ -814,10 +814,23 @@
 			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Пробный урок</a>' +
 			'<a href="#fs-courses-catalog" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Смотреть курсы</a>' +
 			'</div></div>' +
-			'<div class="fs-courses-hero__aside" aria-hidden="true">' +
-			'<div class="fs-courses-hero__orbit">' +
-			'<span>EN</span><span>DE</span><span>FR</span><span>ES</span><span>IT</span><span>ZH</span><span>AR</span>' +
-			'</div></div></div>' +
+			'<div class="fs-courses-hero__aside">' +
+			'<div class="fs-courses-orbit" data-courses-orbit role="group" aria-label="Крутилка языков — можно крутить и выбирать">' +
+			'<div class="fs-courses-orbit__ring" data-orbit-ring>' +
+			'<button type="button" class="fs-courses-orbit__lang" data-orbit-code="EN" data-orbit-filter="en" data-orbit-name="English" style="--a:0deg">EN</button>' +
+			'<button type="button" class="fs-courses-orbit__lang" data-orbit-code="DE" data-orbit-filter="eu" data-orbit-name="Deutsch" style="--a:51deg">DE</button>' +
+			'<button type="button" class="fs-courses-orbit__lang" data-orbit-code="FR" data-orbit-filter="eu" data-orbit-name="Français" style="--a:102deg">FR</button>' +
+			'<button type="button" class="fs-courses-orbit__lang" data-orbit-code="ES" data-orbit-filter="eu" data-orbit-name="Español" style="--a:154deg">ES</button>' +
+			'<button type="button" class="fs-courses-orbit__lang" data-orbit-code="IT" data-orbit-filter="eu" data-orbit-name="Italiano" style="--a:205deg">IT</button>' +
+			'<button type="button" class="fs-courses-orbit__lang" data-orbit-code="ZH" data-orbit-filter="asia" data-orbit-name="中文" style="--a:257deg">ZH</button>' +
+			'<button type="button" class="fs-courses-orbit__lang" data-orbit-code="AR" data-orbit-filter="asia" data-orbit-name="العربية" style="--a:308deg">AR</button>' +
+			'</div>' +
+			'<div class="fs-courses-orbit__core">' +
+			'<span class="fs-courses-orbit__hint ff-graphik tracking-wide" data-orbit-hint>Крути</span>' +
+			'<span class="fs-courses-orbit__code" data-orbit-code-view>EN</span>' +
+			'<span class="fs-courses-orbit__name" data-orbit-name-view>English</span>' +
+			'</div></div>' +
+			'<p class="fs-courses-orbit__tip">Потяни круг · кликни язык</p></div></div>' +
 			'<nav class="container fs-courses-hero__switch" aria-label="Другие направления">' +
 			'<a href="' +
 			kidsUrl +
@@ -853,22 +866,166 @@
 
 		const grid = host.querySelector('[data-courses-grid]');
 		const filterBtns = host.querySelectorAll('[data-course-filter]');
+
+		const applyFilter = (id) => {
+			filterBtns.forEach((b) => {
+				const on = b.dataset.courseFilter === id;
+				b.classList.toggle('is-active', on);
+				b.setAttribute('aria-pressed', on ? 'true' : 'false');
+			});
+			grid?.querySelectorAll('.fs-course-card').forEach((card) => {
+				const lang = card.dataset.courseLang;
+				const show = id === 'all' || lang === id;
+				card.hidden = !show;
+				card.classList.toggle('is-hidden', !show);
+			});
+		};
+
 		filterBtns.forEach((btn) => {
-			btn.addEventListener('click', () => {
-				const id = btn.dataset.courseFilter;
-				filterBtns.forEach((b) => {
-					const on = b === btn;
-					b.classList.toggle('is-active', on);
-					b.setAttribute('aria-pressed', on ? 'true' : 'false');
+			btn.addEventListener('click', () => applyFilter(btn.dataset.courseFilter));
+		});
+
+		initCoursesOrbit(host, applyFilter);
+	}
+
+	function initCoursesOrbit(host, applyFilter) {
+		const orbit = host.querySelector('[data-courses-orbit]');
+		const ring = host.querySelector('[data-orbit-ring]');
+		const codeView = host.querySelector('[data-orbit-code-view]');
+		const nameView = host.querySelector('[data-orbit-name-view]');
+		const hint = host.querySelector('[data-orbit-hint]');
+		const langs = host.querySelectorAll('.fs-courses-orbit__lang');
+		if (!orbit || !ring || !langs.length) return;
+
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		let angle = 0;
+		let velocity = reduceMotion ? 0 : 0.08;
+		let dragging = false;
+		let lastX = 0;
+		let lastY = 0;
+		let lastT = 0;
+		let raf = 0;
+		let activeCode = 'EN';
+
+		const setAngle = (a) => {
+			angle = a;
+			ring.style.transform = 'rotate(' + angle + 'deg)';
+			langs.forEach((el) => {
+				el.style.transform =
+					'rotate(var(--a)) translateY(calc(-1 * var(--orbit-r))) rotate(calc(-1 * var(--a) - ' +
+					angle +
+					'deg))';
+			});
+		};
+
+		const paintLang = (btn, picked) => {
+			activeCode = btn.dataset.orbitCode;
+			langs.forEach((el) => el.classList.toggle('is-active', el === btn));
+			if (codeView) codeView.textContent = btn.dataset.orbitCode;
+			if (nameView) nameView.textContent = btn.dataset.orbitName;
+			if (hint) hint.textContent = picked ? 'Выбрано' : 'Крути';
+			orbit.classList.toggle('is-picked', !!picked);
+		};
+
+		const selectLang = (btn, scrollToCatalog) => {
+			paintLang(btn, true);
+			applyFilter(btn.dataset.orbitFilter || 'all');
+			if (scrollToCatalog) {
+				host.querySelector('#fs-courses-catalog')?.scrollIntoView({
+					behavior: reduceMotion ? 'auto' : 'smooth',
+					block: 'start',
 				});
-				grid?.querySelectorAll('.fs-course-card').forEach((card) => {
-					const lang = card.dataset.courseLang;
-					const show = id === 'all' || lang === id;
-					card.hidden = !show;
-					card.classList.toggle('is-hidden', !show);
-				});
+			}
+		};
+
+		const tick = () => {
+			if (!dragging && !reduceMotion) {
+				angle += velocity;
+				velocity *= 0.995;
+				if (Math.abs(velocity) < 0.04) velocity = 0.04 * Math.sign(velocity || 1);
+				setAngle(angle);
+			}
+			raf = requestAnimationFrame(tick);
+		};
+
+		const angleFromEvent = (e) => {
+			const rect = orbit.getBoundingClientRect();
+			const cx = rect.left + rect.width / 2;
+			const cy = rect.top + rect.height / 2;
+			return (Math.atan2(e.clientY - cy, e.clientX - cx) * 180) / Math.PI;
+		};
+
+		orbit.addEventListener('pointerdown', (e) => {
+			if (e.target.closest('.fs-courses-orbit__lang')) return;
+			dragging = true;
+			orbit.classList.add('is-dragging');
+			orbit.setPointerCapture?.(e.pointerId);
+			lastX = e.clientX;
+			lastY = e.clientY;
+			lastT = performance.now();
+			velocity = 0;
+			orbit.dataset.dragStart = String(angleFromEvent(e) - angle);
+		});
+
+		orbit.addEventListener('pointermove', (e) => {
+			if (!dragging) {
+				// лёгкий tilt к курсору
+				const rect = orbit.getBoundingClientRect();
+				const dx = (e.clientX - (rect.left + rect.width / 2)) / rect.width;
+				const dy = (e.clientY - (rect.top + rect.height / 2)) / rect.height;
+				orbit.style.setProperty('--tilt-x', (dy * -6).toFixed(2) + 'deg');
+				orbit.style.setProperty('--tilt-y', (dx * 6).toFixed(2) + 'deg');
+				return;
+			}
+			const start = Number(orbit.dataset.dragStart || 0);
+			const next = angleFromEvent(e) - start;
+			const now = performance.now();
+			const dt = Math.max(16, now - lastT);
+			velocity = ((next - angle) / dt) * 16;
+			angle = next;
+			setAngle(angle);
+			lastT = now;
+			lastX = e.clientX;
+			lastY = e.clientY;
+		});
+
+		const endDrag = () => {
+			if (!dragging) return;
+			dragging = false;
+			orbit.classList.remove('is-dragging');
+			velocity = Math.max(-1.8, Math.min(1.8, velocity));
+			if (Math.abs(velocity) < 0.05) velocity = 0.08;
+		};
+
+		orbit.addEventListener('pointerup', endDrag);
+		orbit.addEventListener('pointercancel', endDrag);
+		orbit.addEventListener('pointerleave', () => {
+			if (!dragging) {
+				orbit.style.setProperty('--tilt-x', '0deg');
+				orbit.style.setProperty('--tilt-y', '0deg');
+			}
+		});
+
+		langs.forEach((btn) => {
+			btn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				selectLang(btn, true);
 			});
 		});
+
+		// двойной клик по центру — сброс фильтра
+		orbit.querySelector('.fs-courses-orbit__core')?.addEventListener('dblclick', () => {
+			langs.forEach((el) => el.classList.remove('is-active'));
+			if (codeView) codeView.textContent = 'ALL';
+			if (nameView) nameView.textContent = 'Все языки';
+			if (hint) hint.textContent = 'Сброс';
+			orbit.classList.remove('is-picked');
+			applyFilter('all');
+		});
+
+		setAngle(0);
+		paintLang(langs[0], false);
+		if (!reduceMotion) raf = requestAnimationFrame(tick);
 	}
 
 	function renderEventsPage() {

@@ -2318,71 +2318,123 @@ footer {
   }
 }
 
-.fs-courses-hero__orbit {
+.fs-courses-orbit {
+  --orbit-r: 6.4rem;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
   position: relative;
   width: min(18rem, 100%);
   aspect-ratio: 1;
   border-radius: 50%;
   border: 1px solid var(--fs-line);
   background:
-    radial-gradient(circle at 35% 30%, rgba(90, 127, 118, 0.18), transparent 45%),
+    radial-gradient(circle at 35% 30%, rgba(90, 127, 118, 0.2), transparent 48%),
     #fdfcfb;
   box-shadow: var(--fs-shadow);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transform: perspective(700px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.fs-courses-hero__orbit::before {
+.fs-courses-orbit.is-dragging {
+  cursor: grabbing;
+  box-shadow: 0 16px 40px rgba(58, 57, 55, 0.12);
+}
+
+.fs-courses-orbit.is-picked {
+  border-color: rgba(90, 127, 118, 0.45);
+}
+
+.fs-courses-orbit__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.fs-courses-orbit__ring::before {
   content: '';
   position: absolute;
-  inset: 12%;
+  inset: 14%;
   border-radius: 50%;
-  border: 1px dashed rgba(90, 127, 118, 0.28);
-  animation: fs-courses-spin 36s linear infinite;
+  border: 1px dashed rgba(90, 127, 118, 0.3);
+  pointer-events: none;
 }
 
-.fs-courses-hero__orbit span {
+.fs-courses-orbit__lang {
   position: absolute;
-  z-index: 1;
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 2.35rem;
+  height: 2.35rem;
+  margin: -1.175rem 0 0 -1.175rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
   color: var(--fs-primary-dark);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.06em;
   font-weight: 500;
+  cursor: pointer;
+  transform: rotate(var(--a)) translateY(calc(-1 * var(--orbit-r))) rotate(calc(-1 * var(--a)));
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-.fs-courses-hero__orbit span:nth-child(1) {
-  top: 8%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.fs-courses-hero__orbit span:nth-child(2) {
-  top: 28%;
-  right: 10%;
-}
-.fs-courses-hero__orbit span:nth-child(3) {
-  top: 55%;
-  right: 8%;
-}
-.fs-courses-hero__orbit span:nth-child(4) {
-  bottom: 12%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.fs-courses-hero__orbit span:nth-child(5) {
-  bottom: 28%;
-  left: 10%;
-}
-.fs-courses-hero__orbit span:nth-child(6) {
-  top: 55%;
-  left: 8%;
-}
-.fs-courses-hero__orbit span:nth-child(7) {
-  top: 28%;
-  left: 12%;
+.fs-courses-orbit__lang:hover,
+.fs-courses-orbit__lang.is-active {
+  background: var(--fs-primary);
+  border-color: var(--fs-primary);
+  color: #fdfcfb;
 }
 
-@keyframes fs-courses-spin {
-  to {
-    transform: rotate(360deg);
-  }
+.fs-courses-orbit__core {
+  position: absolute;
+  inset: 28%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  border-radius: 50%;
+  background: rgba(253, 252, 251, 0.88);
+  border: 1px solid var(--fs-line);
+  text-align: center;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.fs-courses-orbit__hint {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fs-muted);
+}
+
+.fs-courses-orbit__code {
+  font-size: 1.55rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: var(--fs-ink);
+}
+
+.fs-courses-orbit__name {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--fs-muted);
+}
+
+.fs-courses-orbit__tip {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fs-muted);
 }
 
 .fs-courses-hero__switch {
@@ -2701,10 +2753,14 @@ footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fs-courses-hero__orbit,
+  .fs-courses-orbit,
   .fs-course-card {
     animation: none;
     transition: none;
+  }
+
+  .fs-courses-orbit {
+    transform: none;
   }
 
   .fs-course-card:hover {
