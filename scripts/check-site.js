@@ -72,8 +72,10 @@ async function checkBrowser() {
 
 	const checks = {
 		'index.html': async () => {
-			const n = await page.locator('[data-site-reviews] .swiper-slide').count();
-			if (n !== 5) issues.push(`index: expected 5 reviews, got ${n}`);
+			const n = await page.locator('[data-site-reviews] .fs-review-card').count();
+			if (n < 5) issues.push(`index: expected >=5 review cards, got ${n}`);
+			if (!(await page.locator('[data-reviews-track]').count()))
+				issues.push('index: missing reviews track');
 			if (!(await page.locator('.fs-hero-title').count())) issues.push('index: missing hero title');
 			if (!(await page.locator('.fs-pillars').count())) issues.push('index: missing pillars');
 		},

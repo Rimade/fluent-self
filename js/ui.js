@@ -316,34 +316,228 @@
 		const reviews = window.SITE_CONTENT?.reviews;
 		if (!host || !reviews?.length) return;
 
-		const slides = reviews
-			.map(
-				(r) =>
-					'<div class="swiper-slide"><div class="review-name text-center fz-norm ff-italic text-center">' +
-					r.name +
-					'</div></div>',
-			)
-			.join('');
+		const card = (r, i) => {
+			const initials = (r.name || '?')
+				.split(/\s+/)
+				.map((p) => p[0])
+				.filter(Boolean)
+				.slice(0, 2)
+				.join('')
+				.toUpperCase();
+			return (
+				'<article class="fs-review-card" data-review-index="' +
+				i +
+				'" tabindex="0">' +
+				'<div class="fs-review-card__quote" aria-hidden="true">“</div>' +
+				'<p class="fs-review-card__text">' +
+				r.text +
+				'</p>' +
+				'<footer class="fs-review-card__foot">' +
+				'<span class="fs-review-card__avatar" aria-hidden="true">' +
+				initials +
+				'</span>' +
+				'<span class="fs-review-card__meta">' +
+				'<span class="fs-review-card__name">' +
+				r.name +
+				'</span>' +
+				(r.course
+					? '<span class="fs-review-card__course ff-graphik tracking-wide">' + r.course + '</span>'
+					: '') +
+				'</span></footer></article>'
+			);
+		};
 
-		const texts = reviews
-			.map(
-				(r) =>
-					'<div class="col-12 sm:col-11 md:col-8 text-center kt-block review-text" data-siema-item hidden>' +
-					r.text +
-					'</div>',
-			)
-			.join('');
+		const cards = reviews.map(card).join('');
 
-		host.className = 'fs-reviews-wrap overflow-hidden';
+		host.className = 'fs-reviews-wrap';
 		host.innerHTML =
-			'<div class="py-75"><div class="fz-xs uppercase tracking-wide text-center ff-graphik">Отзывы о нас</div></div>' +
-			'<div class="overflow-hidden fs-reviews"><div data-behavior="siema">' +
-			'<div class="swiper-wrapper flex flex-no-wrap">' +
-			slides +
+			'<section class="fs-reviews" aria-labelledby="fs-reviews-title">' +
+			'<div class="container fs-reviews__head">' +
+			'<div class="fs-reviews__intro">' +
+			'<p class="fs-reviews__eyebrow ff-graphik tracking-wide">Голоса студентов</p>' +
+			'<h2 id="fs-reviews-title" class="fs-reviews__title">Отзывы о нас</h2>' +
+			'<p class="fs-reviews__lead">Коротко о том, как проходит обучение — без скриптов и шаблонных формулировок.</p>' +
+			'</div>' +
+			'<div class="fs-reviews__controls">' +
+			'<button type="button" class="fs-reviews__nav" data-reviews-prev aria-label="Предыдущий отзыв">' +
+			'<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3L5 9l6 6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>' +
+			'</button>' +
+			'<button type="button" class="fs-reviews__nav" data-reviews-next aria-label="Следующий отзыв">' +
+			'<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M7 3l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>' +
+			'</button>' +
 			'</div></div>' +
-			'<div class="container"><div class="row justify-center pt-25 pb-50">' +
-			texts +
-			'</div></div></div>';
+			'<div class="fs-reviews__viewport" data-reviews-viewport>' +
+			'<div class="fs-reviews__track" data-reviews-track>' +
+			cards +
+			'</div></div>' +
+			'<div class="container fs-reviews__hint">' +
+			'<span class="ff-graphik tracking-wide">Листайте в сторону · бесконечная лента</span>' +
+			'</div></section>';
+
+		initReviewsCarousel(host, reviews.length);
+	}
+
+	function initReviewsCarousel(host, count) {
+		const viewport = host.querySelector('[data-reviews-viewport]');
+		const track = host.querySelector('[data-reviews-track]');
+		const prevBtn = host.querySelector('[data-reviews-prev]');
+		const nextBtn = host.querySelector('[data-reviews-next]');
+		if (!viewport || !track || !count) return;
+
+		const originals = Array.from(track.children);
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		// Три копии для бесшовного loop
+		track.innerHTML = '';
+		for (let copy = 0; copy < 3; copy++) {
+			originals.forEach((node, i) => {
+				const clone = node.cloneNode(true);
+				clone.dataset.copy = String(copy);
+				clone.dataset.reviewIndex = String(i);
+				track.appendChild(clone);
+			});
+		}
+
+		let index = count; // старт на средней копии
+		let step = 0;
+		let sidePad = 0;
+		let animating = false;
+		let autoTimer = null;
+		let drag = null;
+
+		const xFor = (i, dragDx) => sidePad - i * step + (dragDx || 0);
+
+		const measure = () => {
+			const card = track.querySelector('.fs-review-card');
+			if (!card) return;
+			const styles = getComputedStyle(track);
+			const gap = parseFloat(styles.columnGap || styles.gap) || 0;
+			const cardW = card.getBoundingClientRect().width;
+			step = cardW + gap;
+			const vw = viewport.getBoundingClientRect().width;
+			const mobile = window.matchMedia('(max-width: 699px)').matches;
+			if (mobile) {
+				sidePad = Math.max(12, (vw - cardW) / 2);
+			} else {
+				const head = host.querySelector('.fs-reviews__head');
+				const headLeft = head
+					? head.getBoundingClientRect().left - viewport.getBoundingClientRect().left
+					: 24;
+				sidePad = Math.max(16, headLeft);
+			}
+			apply(false);
+		};
+
+		const apply = (animate) => {
+			track.style.transition =
+				animate && !reduceMotion ? 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
+			track.style.transform = 'translate3d(' + xFor(index) + 'px,0,0)';
+		};
+
+		const normalize = () => {
+			if (index < count) {
+				index += count;
+				apply(false);
+			} else if (index >= count * 2) {
+				index -= count;
+				apply(false);
+			}
+			animating = false;
+		};
+
+		const go = (delta) => {
+			if (animating || !step) return;
+			animating = true;
+			index += delta;
+			apply(true);
+			window.setTimeout(normalize, reduceMotion ? 0 : 560);
+			restartAuto();
+		};
+
+		const onPointerDown = (e) => {
+			if (e.pointerType === 'mouse' && e.button !== 0) return;
+			drag = {
+				id: e.pointerId,
+				x: e.clientX,
+				startIndex: index,
+				moved: false,
+			};
+			viewport.setPointerCapture?.(e.pointerId);
+			track.style.transition = 'none';
+			stopAuto();
+		};
+
+		const onPointerMove = (e) => {
+			if (!drag || e.pointerId !== drag.id || !step) return;
+			const dx = e.clientX - drag.x;
+			if (Math.abs(dx) > 4) drag.moved = true;
+			track.style.transform = 'translate3d(' + xFor(drag.startIndex, dx) + 'px,0,0)';
+		};
+
+		const onPointerUp = (e) => {
+			if (!drag || e.pointerId !== drag.id || !step) return;
+			const dx = e.clientX - drag.x;
+			const threshold = Math.min(80, step * 0.22);
+			drag = null;
+			if (dx <= -threshold) go(1);
+			else if (dx >= threshold) go(-1);
+			else {
+				apply(true);
+				window.setTimeout(
+					() => {
+						animating = false;
+					},
+					reduceMotion ? 0 : 560,
+				);
+				restartAuto();
+			}
+		};
+
+		const stopAuto = () => {
+			if (autoTimer) {
+				clearInterval(autoTimer);
+				autoTimer = null;
+			}
+		};
+
+		const restartAuto = () => {
+			stopAuto();
+			if (reduceMotion) return;
+			autoTimer = window.setInterval(() => go(1), 5200);
+		};
+
+		prevBtn?.addEventListener('click', () => go(-1));
+		nextBtn?.addEventListener('click', () => go(1));
+		viewport.addEventListener('pointerdown', onPointerDown);
+		viewport.addEventListener('pointermove', onPointerMove);
+		viewport.addEventListener('pointerup', onPointerUp);
+		viewport.addEventListener('pointercancel', onPointerUp);
+		viewport.addEventListener('mouseenter', stopAuto);
+		viewport.addEventListener('mouseleave', restartAuto);
+		host.addEventListener(
+			'keydown',
+			(e) => {
+				if (e.key === 'ArrowLeft') {
+					e.preventDefault();
+					go(-1);
+				}
+				if (e.key === 'ArrowRight') {
+					e.preventDefault();
+					go(1);
+				}
+			},
+			true,
+		);
+
+		track.addEventListener('transitionend', (e) => {
+			if (e.target === track && e.propertyName === 'transform') normalize();
+		});
+
+		const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+		ro?.observe(viewport);
+		window.addEventListener('resize', measure);
+		measure();
+		restartAuto();
 	}
 
 	function renderEventsPage() {
