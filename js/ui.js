@@ -23,6 +23,7 @@
 		renderAdultCoursesPage();
 		renderCorpPage();
 		renderAboutPage();
+		renderContactsPage();
 		renderPhotosPage();
 		initFsHeader();
 		injectPageCta();
@@ -1109,6 +1110,151 @@
 
 		setAngle(0, false);
 		if (!reduceMotion) raf = requestAnimationFrame(tick);
+	}
+
+	function renderContactsPage() {
+		const host = document.querySelector('[data-site-contacts]');
+		const data = window.SITE_CONTENT?.contacts;
+		if (!host || !data) return;
+
+		const cfg = window.SITE_CONFIG || {};
+		const hero = data.hero || {};
+		const outro = data.outro || {};
+		const phone = cfg.phone || '';
+		const phoneHref = cfg.phoneHref || '#';
+		const email = cfg.email || '';
+		const address = cfg.address || '';
+		const hours = cfg.hours || '';
+		const whatsapp = cfg.whatsapp || '';
+		const mapSrc = cfg.map?.yandexEmbed || '';
+		const mapsSearch = address ? 'https://yandex.ru/maps/?text=' + encodeURIComponent(address) : '';
+
+		const directionsHtml = (data.directions || [])
+			.map(
+				(d, i) =>
+					'<article class="fs-contacts-way">' +
+					'<span class="fs-contacts-way__num ff-graphik" aria-hidden="true">' +
+					String(i + 1).padStart(2, '0') +
+					'</span>' +
+					'<h3 class="fs-contacts-way__title ff-graphik tracking-wide">' +
+					d.title +
+					'</h3>' +
+					'<p class="fs-contacts-way__text">' +
+					d.text +
+					'</p></article>',
+			)
+			.join('');
+
+		host.className = 'fs-contacts-page';
+		host.innerHTML =
+			'<header class="fs-contacts-hero">' +
+			'<div class="container fs-contacts-hero__grid">' +
+			'<div class="fs-contacts-hero__copy">' +
+			'<p class="fs-contacts-hero__eyebrow ff-graphik tracking-wide">' +
+			(hero.eyebrow || 'Контакты') +
+			'</p>' +
+			'<h1 class="fs-contacts-hero__title">' +
+			(hero.title || 'Как нас найти') +
+			'</h1>' +
+			'<p class="fs-contacts-hero__lead">' +
+			(hero.lead || '') +
+			'</p></div>' +
+			'<aside class="fs-contacts-hero__quick" aria-label="Быстрые контакты">' +
+			(phone
+				? '<a class="fs-contacts-hero__phone" href="' + phoneHref + '">' + phone + '</a>'
+				: '') +
+			(hours ? '<p class="fs-contacts-hero__hours" data-site-hours>' + hours + '</p>' : '') +
+			(data.metro ? '<p class="fs-contacts-hero__metro">' + data.metro + '</p>' : '') +
+			'</aside></div></header>' +
+			'<section class="fs-contacts-map-block" aria-label="Карта проезда">' +
+			'<div class="fs-contacts-map" data-site-map>' +
+			(mapSrc
+				? '<iframe src="' +
+					mapSrc +
+					'" title="Карта — ' +
+					(cfg.name || 'Fluent Self') +
+					'" loading="lazy" allowfullscreen></iframe>'
+				: '<p class="fs-contacts-map__empty">Карта скоро появится</p>') +
+			'</div></section>' +
+			'<section class="fs-contacts-facts" aria-label="Контактные данные">' +
+			'<div class="container">' +
+			'<div class="fs-contacts-facts__grid">' +
+			(address
+				? '<div class="fs-contacts-fact">' +
+					'<p class="fs-contacts-fact__label ff-graphik tracking-wide">Адрес</p>' +
+					'<p class="fs-contacts-fact__value" data-site-address>' +
+					address +
+					'</p></div>'
+				: '') +
+			(phone
+				? '<div class="fs-contacts-fact">' +
+					'<p class="fs-contacts-fact__label ff-graphik tracking-wide">Телефон</p>' +
+					'<a class="fs-contacts-fact__link" href="' +
+					phoneHref +
+					'">' +
+					phone +
+					'</a>' +
+					(email
+						? '<a class="fs-contacts-fact__sub" href="mailto:' + email + '">' + email + '</a>'
+						: '') +
+					'</div>'
+				: '') +
+			(hours
+				? '<div class="fs-contacts-fact">' +
+					'<p class="fs-contacts-fact__label ff-graphik tracking-wide">График</p>' +
+					'<p class="fs-contacts-fact__value" data-site-hours>' +
+					hours +
+					'</p></div>'
+				: '') +
+			'</div>' +
+			'<div class="fs-contacts-actions">' +
+			(phone
+				? '<a href="' +
+					phoneHref +
+					'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Позвонить</a>'
+				: '') +
+			(whatsapp
+				? '<a href="' +
+					whatsapp +
+					'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide fs-contacts__wa" target="_blank" rel="noopener noreferrer">WhatsApp</a>'
+				: '') +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Пробный урок</a>' +
+			(mapsSearch
+				? '<a href="' +
+					mapsSearch +
+					'" class="fs-contacts-maps-link" target="_blank" rel="noopener noreferrer">Маршрут в Яндекс.Картах</a>'
+				: '') +
+			'</div></div></section>' +
+			(directionsHtml
+				? '<section class="fs-contacts-directions" aria-labelledby="fs-contacts-directions-title">' +
+					'<div class="container">' +
+					'<div class="fs-contacts-section-head">' +
+					'<p class="fs-contacts-section-head__eyebrow ff-graphik tracking-wide">Маршрут</p>' +
+					'<h2 id="fs-contacts-directions-title" class="fs-contacts-section-head__title">Как добраться</h2>' +
+					'</div>' +
+					'<div class="fs-contacts-directions__grid">' +
+					directionsHtml +
+					'</div></div></section>'
+				: '') +
+			'<section class="fs-contacts-outro">' +
+			'<div class="container fs-contacts-outro__row">' +
+			'<div class="fs-contacts-outro__copy">' +
+			'<p class="fs-contacts-outro__label ff-graphik tracking-wide">' +
+			(outro.eyebrow || 'Знакомство') +
+			'</p>' +
+			'<h2 class="fs-contacts-outro__title">' +
+			(outro.title || 'Приходите на пробный урок') +
+			'</h2>' +
+			'<p class="fs-contacts-outro__text">' +
+			(outro.text || '') +
+			'</p></div>' +
+			'<div class="fs-contacts-outro__actions">' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a>' +
+			'</div></div></section>';
 	}
 
 	function renderCorpPage() {

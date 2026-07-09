@@ -106,8 +106,10 @@
 
 	function applyContacts() {
 		document.querySelectorAll('a[href^="tel:"]').forEach((a) => {
-			a.textContent = cfg.phone;
 			a.href = cfg.phoneHref;
+			// CTA-кнопки («Позвонить») оставляем с исходным текстом
+			if (a.classList.contains('fs-hero-cta__btn')) return;
+			a.textContent = cfg.phone;
 		});
 
 		document.querySelectorAll('.fs-header__phone, .fs-mobile-menu__phone').forEach((a) => {
@@ -116,7 +118,12 @@
 		});
 
 		document.querySelectorAll('a[href*="whatsapp.com"], a[href*="wa.me"]').forEach((a) => {
-			if (a.closest('.fs-footer') || a.classList.contains('fs-order__wa')) return;
+			if (
+				a.closest('.fs-footer') ||
+				a.classList.contains('fs-order__wa') ||
+				a.classList.contains('fs-contacts__wa')
+			)
+				return;
 			if (cfg.whatsapp) a.href = cfg.whatsapp;
 			else {
 				const digits = (cfg.phone || '').replace(/\D/g, '');
@@ -128,7 +135,7 @@
 
 		document
 			.querySelectorAll(
-				'.fs-footer a[href*="whatsapp.com"], .fs-footer a[href*="wa.me"], .fs-order__wa',
+				'.fs-footer a[href*="whatsapp.com"], .fs-footer a[href*="wa.me"], .fs-order__wa, .fs-contacts__wa',
 			)
 			.forEach((a) => {
 				if (cfg.whatsapp) a.href = cfg.whatsapp;
