@@ -2314,7 +2314,7 @@ footer {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    min-height: 16rem;
+    min-height: 18rem;
   }
 }
 
@@ -2323,19 +2323,20 @@ footer {
   --tilt-x: 0deg;
   --tilt-y: 0deg;
   position: relative;
+  flex-shrink: 0;
   width: min(18rem, 100%);
   aspect-ratio: 1;
   border-radius: 50%;
   border: 1px solid var(--fs-line);
   background:
-    radial-gradient(circle at 35% 30%, rgba(90, 127, 118, 0.2), transparent 48%),
+    radial-gradient(circle at 35% 30%, rgba(90, 127, 118, 0.22), transparent 48%),
     #fdfcfb;
   box-shadow: var(--fs-shadow);
   cursor: grab;
   user-select: none;
   touch-action: none;
   transform: perspective(700px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.25s ease;
 }
 
 .fs-courses-orbit.is-dragging {
@@ -2344,7 +2345,37 @@ footer {
 }
 
 .fs-courses-orbit.is-picked {
-  border-color: rgba(90, 127, 118, 0.45);
+  border-color: rgba(90, 127, 118, 0.5);
+}
+
+.fs-courses-orbit.is-pulse {
+  animation: fs-orbit-pulse 0.38s ease;
+}
+
+@keyframes fs-orbit-pulse {
+  0% {
+    transform: perspective(700px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) scale(1);
+  }
+  40% {
+    transform: perspective(700px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) scale(1.03);
+  }
+  100% {
+    transform: perspective(700px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) scale(1);
+  }
+}
+
+.fs-courses-orbit__marker {
+  position: absolute;
+  top: 0.55rem;
+  left: 50%;
+  z-index: 3;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-left: -0.225rem;
+  border-radius: 50%;
+  background: var(--fs-primary);
+  box-shadow: 0 0 0 3px rgba(90, 127, 118, 0.18);
+  pointer-events: none;
 }
 
 .fs-courses-orbit__ring {
@@ -2368,12 +2399,12 @@ footer {
   top: 50%;
   left: 50%;
   z-index: 2;
-  width: 2.35rem;
-  height: 2.35rem;
-  margin: -1.175rem 0 0 -1.175rem;
+  width: 2.45rem;
+  height: 2.45rem;
+  margin: -1.225rem 0 0 -1.225rem;
   border: 1px solid transparent;
   border-radius: 999px;
-  background: transparent;
+  background: rgba(253, 252, 251, 0.55);
   color: var(--fs-primary-dark);
   font: inherit;
   font-size: 12px;
@@ -2381,31 +2412,65 @@ footer {
   font-weight: 500;
   cursor: pointer;
   transform: rotate(var(--a)) translateY(calc(-1 * var(--orbit-r))) rotate(calc(-1 * var(--a)));
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.fs-courses-orbit__lang:hover,
+.fs-courses-orbit__lang:hover {
+  background: var(--fs-primary-soft);
+  border-color: rgba(90, 127, 118, 0.35);
+}
+
 .fs-courses-orbit__lang.is-active {
   background: var(--fs-primary);
   border-color: var(--fs-primary);
   color: #fdfcfb;
+  box-shadow: 0 4px 14px rgba(90, 127, 118, 0.28);
 }
 
 .fs-courses-orbit__core {
   position: absolute;
   inset: 28%;
-  z-index: 1;
+  z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.15rem;
+  margin: 0;
+  padding: 0.5rem;
   border-radius: 50%;
-  background: rgba(253, 252, 251, 0.88);
+  background: rgba(253, 252, 251, 0.94);
   border: 1px solid var(--fs-line);
   text-align: center;
-  pointer-events: auto;
   cursor: pointer;
+  font: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.fs-courses-orbit__core:hover {
+  border-color: var(--fs-primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(90, 127, 118, 0.12);
+}
+
+.fs-courses-orbit__core:focus-visible {
+  outline: 2px solid var(--fs-primary);
+  outline-offset: 2px;
+}
+
+.fs-courses-orbit__core:active {
+  transform: scale(0.97);
+}
+
+.fs-courses-orbit.is-picked .fs-courses-orbit__core {
+  border-color: rgba(90, 127, 118, 0.45);
+  background: #fff;
+}
+
+.fs-courses-orbit.is-picked .fs-courses-orbit__hint {
+  color: var(--fs-primary);
 }
 
 .fs-courses-orbit__hint {
@@ -2426,15 +2491,10 @@ footer {
   font-size: 12px;
   font-style: italic;
   color: var(--fs-muted);
-}
-
-.fs-courses-orbit__tip {
-  margin: 0.75rem 0 0;
-  text-align: center;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--fs-muted);
+  max-width: 7em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .fs-courses-hero__switch {

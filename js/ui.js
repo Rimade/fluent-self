@@ -825,12 +825,12 @@
 			'<button type="button" class="fs-courses-orbit__lang" data-orbit-code="ZH" data-orbit-filter="asia" data-orbit-name="中文" style="--a:257deg">ZH</button>' +
 			'<button type="button" class="fs-courses-orbit__lang" data-orbit-code="AR" data-orbit-filter="asia" data-orbit-name="العربية" style="--a:308deg">AR</button>' +
 			'</div>' +
-			'<div class="fs-courses-orbit__core">' +
+			'<button type="button" class="fs-courses-orbit__core" aria-label="Сбросить фильтр — все языки">' +
 			'<span class="fs-courses-orbit__hint ff-graphik tracking-wide" data-orbit-hint>Крути</span>' +
-			'<span class="fs-courses-orbit__code" data-orbit-code-view>EN</span>' +
-			'<span class="fs-courses-orbit__name" data-orbit-name-view>English</span>' +
-			'</div></div>' +
-			'<p class="fs-courses-orbit__tip">Потяни круг · кликни язык</p></div></div>' +
+			'<span class="fs-courses-orbit__code" data-orbit-code-view>ALL</span>' +
+			'<span class="fs-courses-orbit__name" data-orbit-name-view>Все языки</span>' +
+			'</button>' +
+			'<span class="fs-courses-orbit__marker" aria-hidden="true"></span></div></div></div>' +
 			'<nav class="container fs-courses-hero__switch" aria-label="Другие направления">' +
 			'<a href="' +
 			kidsUrl +
@@ -891,26 +891,35 @@
 	function initCoursesOrbit(host, applyFilter) {
 		const orbit = host.querySelector('[data-courses-orbit]');
 		const ring = host.querySelector('[data-orbit-ring]');
+		const core = host.querySelector('.fs-courses-orbit__core');
 		const codeView = host.querySelector('[data-orbit-code-view]');
 		const nameView = host.querySelector('[data-orbit-name-view]');
 		const hint = host.querySelector('[data-orbit-hint]');
-		const langs = host.querySelectorAll('.fs-courses-orbit__lang');
+		const langs = Array.from(host.querySelectorAll('.fs-courses-orbit__lang'));
 		if (!orbit || !ring || !langs.length) return;
 
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		let angle = 0;
-		let velocity = reduceMotion ? 0 : 0.08;
+		let velocity = 0;
 		let dragging = false;
-		let lastX = 0;
-		let lastY = 0;
+		let moved = false;
 		let lastT = 0;
 		let raf = 0;
-		let activeCode = 'EN';
+		let snapTimer = 0;
+		let picked = false;
 
-		const setAngle = (a) => {
+		const langAngle = (el) => parseFloat(getComputedStyle(el).getPropertyValue('--a')) || 0;
+
+		const setAngle = (a, withTransition) => {
 			angle = a;
+			ring.style.transition =
+				withTransition && !reduceMotion ? 'transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
 			ring.style.transform = 'rotate(' + angle + 'deg)';
 			langs.forEach((el) => {
+				el.style.transition =
+					withTransition && !reduceMotion
+						? 'transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease, color 0.2s ease'
+						: 'none';
 				el.style.transform =
 					'rotate(var(--a)) translateY(calc(-1 * var(--orbit-r))) rotate(calc(-1 * var(--a) - ' +
 					angle +
@@ -918,17 +927,57 @@
 			});
 		};
 
-		const paintLang = (btn, picked) => {
-			activeCode = btn.dataset.orbitCode;
+		const nearestLang = () => {
+			let best = langs[0];
+			let bestDiff = Infinity;
+			langs.forEach((el) => {
+				// маркер сверху (0°) — ищем язык ближе всего к верху
+				let diff = Math.abs((((langAngle(el) + angle) % 360) + 360) % 360);
+				if (diff > 180) diff = 360 - diff;
+				if (diff < bestDiff) {
+					bestDiff = diff;
+					best = el;
+				}
+			});
+			return best;
+		};
+
+		const pulse = () => {
+			orbit.classList.remove('is-pulse');
+			void orbit.offsetWidth;
+			orbit.classList.add('is-pulse');
+			window.setTimeout(() => orbit.classList.remove('is-pulse'), 380);
+		};
+
+		const paintLang = (btn) => {
+			picked = true;
 			langs.forEach((el) => el.classList.toggle('is-active', el === btn));
-			if (codeView) codeView.textContent = btn.dataset.orbitCode;
-			if (nameView) nameView.textContent = btn.dataset.orbitName;
-			if (hint) hint.textContent = picked ? 'Выбрано' : 'Крути';
-			orbit.classList.toggle('is-picked', !!picked);
+			if (codeView) codeView.textContent = btn.dataset.orbitCode || '';
+			if (nameView) nameView.textContent = btn.dataset.orbitName || '';
+			if (hint) hint.textContent = 'Центр = все';
+			orbit.classList.add('is-picked');
+			pulse();
+		};
+
+		const resetAll = () => {
+			picked = false;
+			velocity = 0;
+			window.clearTimeout(snapTimer);
+			langs.forEach((el) => el.classList.remove('is-active'));
+			if (codeView) codeView.textContent = 'ALL';
+			if (nameView) nameView.textContent = 'Все языки';
+			if (hint) hint.textContent = 'Крути';
+			orbit.classList.remove('is-picked');
+			pulse();
+			applyFilter('all');
 		};
 
 		const selectLang = (btn, scrollToCatalog) => {
-			paintLang(btn, true);
+			const target = -langAngle(btn);
+			velocity = 0;
+			window.clearTimeout(snapTimer);
+			setAngle(target, true);
+			paintLang(btn);
 			applyFilter(btn.dataset.orbitFilter || 'all');
 			if (scrollToCatalog) {
 				host.querySelector('#fs-courses-catalog')?.scrollIntoView({
@@ -938,12 +987,38 @@
 			}
 		};
 
+		const snapToNearest = (apply) => {
+			const best = nearestLang();
+			const target = -langAngle(best);
+			velocity = 0;
+			setAngle(target, true);
+			if (apply) {
+				paintLang(best);
+				applyFilter(best.dataset.orbitFilter || 'all');
+			} else {
+				if (codeView) codeView.textContent = best.dataset.orbitCode || '';
+				if (nameView) nameView.textContent = best.dataset.orbitName || '';
+			}
+		};
+
 		const tick = () => {
-			if (!dragging && !reduceMotion) {
+			if (dragging || reduceMotion) {
+				raf = requestAnimationFrame(tick);
+				return;
+			}
+			// инерция только после drag — иначе idle-spin без автовыбора
+			if (Math.abs(velocity) > 0.02) {
 				angle += velocity;
-				velocity *= 0.995;
-				if (Math.abs(velocity) < 0.04) velocity = 0.04 * Math.sign(velocity || 1);
-				setAngle(angle);
+				velocity *= 0.978;
+				setAngle(angle, false);
+				if (Math.abs(velocity) <= 0.02) {
+					velocity = 0;
+					window.clearTimeout(snapTimer);
+					snapTimer = window.setTimeout(() => snapToNearest(true), 60);
+				}
+			} else if (!picked) {
+				angle += 0.045;
+				setAngle(angle, false);
 			}
 			raf = requestAnimationFrame(tick);
 		};
@@ -956,45 +1031,50 @@
 		};
 
 		orbit.addEventListener('pointerdown', (e) => {
-			if (e.target.closest('.fs-courses-orbit__lang')) return;
+			if (
+				e.target.closest('.fs-courses-orbit__lang') ||
+				e.target.closest('.fs-courses-orbit__core')
+			)
+				return;
 			dragging = true;
+			moved = false;
 			orbit.classList.add('is-dragging');
 			orbit.setPointerCapture?.(e.pointerId);
-			lastX = e.clientX;
-			lastY = e.clientY;
 			lastT = performance.now();
 			velocity = 0;
+			window.clearTimeout(snapTimer);
 			orbit.dataset.dragStart = String(angleFromEvent(e) - angle);
 		});
 
 		orbit.addEventListener('pointermove', (e) => {
 			if (!dragging) {
-				// лёгкий tilt к курсору
 				const rect = orbit.getBoundingClientRect();
 				const dx = (e.clientX - (rect.left + rect.width / 2)) / rect.width;
 				const dy = (e.clientY - (rect.top + rect.height / 2)) / rect.height;
-				orbit.style.setProperty('--tilt-x', (dy * -6).toFixed(2) + 'deg');
-				orbit.style.setProperty('--tilt-y', (dx * 6).toFixed(2) + 'deg');
+				orbit.style.setProperty('--tilt-x', (dy * -8).toFixed(2) + 'deg');
+				orbit.style.setProperty('--tilt-y', (dx * 8).toFixed(2) + 'deg');
 				return;
 			}
 			const start = Number(orbit.dataset.dragStart || 0);
 			const next = angleFromEvent(e) - start;
+			if (Math.abs(next - angle) > 0.4) moved = true;
 			const now = performance.now();
 			const dt = Math.max(16, now - lastT);
 			velocity = ((next - angle) / dt) * 16;
 			angle = next;
-			setAngle(angle);
+			setAngle(angle, false);
 			lastT = now;
-			lastX = e.clientX;
-			lastY = e.clientY;
 		});
 
 		const endDrag = () => {
 			if (!dragging) return;
 			dragging = false;
 			orbit.classList.remove('is-dragging');
-			velocity = Math.max(-1.8, Math.min(1.8, velocity));
-			if (Math.abs(velocity) < 0.05) velocity = 0.08;
+			velocity = Math.max(-2.4, Math.min(2.4, velocity));
+			if (!moved || Math.abs(velocity) < 0.1) {
+				velocity = 0;
+				snapToNearest(true);
+			}
 		};
 
 		orbit.addEventListener('pointerup', endDrag);
@@ -1007,24 +1087,25 @@
 		});
 
 		langs.forEach((btn) => {
+			btn.addEventListener('pointerdown', (e) => e.stopPropagation());
 			btn.addEventListener('click', (e) => {
+				e.preventDefault();
 				e.stopPropagation();
 				selectLang(btn, true);
 			});
 		});
 
-		// двойной клик по центру — сброс фильтра
-		orbit.querySelector('.fs-courses-orbit__core')?.addEventListener('dblclick', () => {
-			langs.forEach((el) => el.classList.remove('is-active'));
-			if (codeView) codeView.textContent = 'ALL';
-			if (nameView) nameView.textContent = 'Все языки';
-			if (hint) hint.textContent = 'Сброс';
-			orbit.classList.remove('is-picked');
-			applyFilter('all');
-		});
+		// один клик по центру — сброс (dblclick больше не нужен)
+		if (core) {
+			core.addEventListener('pointerdown', (e) => e.stopPropagation());
+			core.addEventListener('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				resetAll();
+			});
+		}
 
-		setAngle(0);
-		paintLang(langs[0], false);
+		setAngle(0, false);
 		if (!reduceMotion) raf = requestAnimationFrame(tick);
 	}
 
