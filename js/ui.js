@@ -22,6 +22,7 @@
 		renderOffersSection();
 		renderAdultCoursesPage();
 		renderCorpPage();
+		renderAboutPage();
 		renderPhotosPage();
 		initFsHeader();
 		injectPageCta();
@@ -276,7 +277,7 @@
 		if (!header) return;
 
 		const main = document.querySelector('[data-menu-page]');
-		const overlayPage = !!main?.querySelector('.page-cover, .fs-photo-hero');
+		const overlayPage = !!main?.querySelector('.page-cover, .fs-photo-hero, .fs-about-hero');
 
 		if (overlayPage) {
 			header.classList.add('fs-header--overlay');
@@ -1289,6 +1290,194 @@
 					'</a>'
 				: '') +
 			'</div></div></div></section>';
+	}
+
+	function renderAboutPage() {
+		const host = document.querySelector('[data-site-about]');
+		const data = window.SITE_CONTENT?.about;
+		if (!host || !data) return;
+
+		const hero = data.hero || {};
+		const story = data.story || {};
+		const quote = data.quote || {};
+		const outro = data.outro || {};
+
+		const asset = (src) => {
+			if (!src) return src;
+			if (src.startsWith('http')) return src;
+			const rel = src.replace(/^\//, '');
+			return window.FS_PATHS?.asset(rel) || src;
+		};
+
+		const photoAttrs = (local, remote) => {
+			const fallback = asset(local);
+			if (!remote) return 'src="' + fallback + '"';
+			return 'src="' + fallback + '" data-photo-remote="' + asset(remote) + '"';
+		};
+
+		const upgradeRemotePhotos = (scope) => {
+			(scope || document).querySelectorAll('img[data-photo-remote]').forEach((img) => {
+				const remote = img.dataset.photoRemote;
+				if (!remote) return;
+				const probe = new Image();
+				probe.referrerPolicy = 'no-referrer';
+				probe.onload = () => {
+					img.src = remote;
+					img.removeAttribute('data-photo-remote');
+				};
+				probe.src = remote;
+			});
+		};
+
+		const storyParas = (story.paragraphs || [])
+			.map((p) => '<p class="fs-about-story__p">' + p + '</p>')
+			.join('');
+
+		const pillarsHtml = (data.pillars || [])
+			.map(
+				(p, i) =>
+					'<article class="fs-about-pillar">' +
+					'<span class="fs-about-pillar__num ff-graphik" aria-hidden="true">' +
+					String(i + 1).padStart(2, '0') +
+					'</span>' +
+					'<h3 class="fs-about-pillar__title ff-graphik tracking-wide">' +
+					p.title +
+					'</h3>' +
+					'<p class="fs-about-pillar__text">' +
+					p.text +
+					'</p></article>',
+			)
+			.join('');
+
+		const principlesHtml = (data.principles || [])
+			.map(
+				(p, i) =>
+					'<article class="fs-about-principle">' +
+					'<span class="fs-about-principle__num ff-graphik" aria-hidden="true">' +
+					String(i + 1).padStart(2, '0') +
+					'</span>' +
+					'<h3 class="fs-about-principle__title">' +
+					p.title +
+					'</h3>' +
+					'<p class="fs-about-principle__text">' +
+					p.text +
+					'</p></article>',
+			)
+			.join('');
+
+		const heroImg =
+			hero.image || window.SITE_CONTENT?.photos?.hero?.image || '/assets/media/photos/01.svg';
+		const heroImgRemote =
+			hero.imageRemote || window.SITE_CONTENT?.photos?.items?.[0]?.srcRemote || '';
+
+		host.className = 'fs-about-page';
+		host.innerHTML =
+			'<header class="fs-about-hero">' +
+			'<div class="fs-about-hero__visual" aria-hidden="true">' +
+			'<img class="fs-about-hero__img" ' +
+			photoAttrs(heroImg, heroImgRemote) +
+			' alt="" loading="eager">' +
+			'<span class="fs-about-hero__veil"></span>' +
+			'<span class="fs-about-hero__grain"></span></div>' +
+			'<div class="container fs-about-hero__inner">' +
+			'<div class="fs-about-hero__copy">' +
+			'<p class="fs-about-hero__eyebrow ff-graphik tracking-wide">' +
+			(hero.eyebrow || 'О школе') +
+			'</p>' +
+			'<p class="fs-about-hero__brand">' +
+			(hero.brand || 'Fluent Self') +
+			'</p>' +
+			'<h1 class="fs-about-hero__title">' +
+			(hero.title || 'О школе') +
+			'</h1>' +
+			'<p class="fs-about-hero__lead">' +
+			(hero.lead || '') +
+			'</p>' +
+			(hero.meta
+				? '<p class="fs-about-hero__meta ff-graphik tracking-wide">' + hero.meta + '</p>'
+				: '') +
+			'<div class="fs-about-hero__actions">' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Пробный урок</a>' +
+			'<a href="' +
+			pageHref('photo.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--ghost ff-graphik tracking-wide">Фото школы</a>' +
+			'</div>' +
+			'<nav class="fs-about-hero__switch" aria-label="Смотрите также">' +
+			'<a href="' +
+			pageHref('events.html') +
+			'">Мероприятия</a>' +
+			'<span aria-hidden="true">·</span>' +
+			'<a href="' +
+			pageHref('kursy-dlya-vzroslyh.html') +
+			'">Курсы</a></nav></div></div></header>' +
+			'<section class="fs-about-story" aria-labelledby="fs-about-story-title">' +
+			'<div class="container fs-about-story__grid">' +
+			'<div class="fs-about-story__head">' +
+			'<p class="fs-about-story__eyebrow ff-graphik tracking-wide">' +
+			(story.eyebrow || 'Идеология') +
+			'</p>' +
+			'<h2 id="fs-about-story-title" class="fs-about-story__title">' +
+			(story.title || 'Как мы учим') +
+			'</h2></div>' +
+			'<div class="fs-about-story__body">' +
+			storyParas +
+			'</div></div></section>' +
+			'<section class="fs-about-pillars" aria-label="Опора школы">' +
+			'<div class="container"><div class="fs-about-pillars__grid">' +
+			pillarsHtml +
+			'</div></div></section>' +
+			'<section class="fs-about-principles" aria-labelledby="fs-about-principles-title">' +
+			'<div class="container">' +
+			'<div class="fs-about-section-head">' +
+			'<p class="fs-about-section-head__eyebrow ff-graphik tracking-wide">Что важно</p>' +
+			'<h2 id="fs-about-principles-title" class="fs-about-section-head__title">Принципы школы</h2>' +
+			'</div>' +
+			'<div class="fs-about-principles__grid">' +
+			principlesHtml +
+			'</div></div></section>' +
+			'<section class="fs-about-quote" aria-label="Слово команды">' +
+			'<div class="container fs-about-quote__grid">' +
+			'<figure class="fs-about-quote__media">' +
+			'<img src="' +
+			asset(quote.image || '/assets/brand/fluent-self-cover.png') +
+			'" alt="' +
+			(quote.author || 'Команда Fluent Self') +
+			'" loading="lazy">' +
+			'</figure>' +
+			'<blockquote class="fs-about-quote__block">' +
+			'<p class="fs-about-quote__mark" aria-hidden="true">«</p>' +
+			'<p class="fs-about-quote__text">' +
+			(quote.text || '') +
+			'</p>' +
+			'<footer class="fs-about-quote__footer">' +
+			'<cite class="fs-about-quote__author">' +
+			(quote.author || 'Команда Fluent Self') +
+			'</cite>' +
+			(quote.role ? '<span class="fs-about-quote__role">' + quote.role + '</span>' : '') +
+			'</footer></blockquote></div></section>' +
+			'<section class="fs-about-outro">' +
+			'<div class="container"><div class="fs-about-outro__inner">' +
+			'<p class="fs-about-outro__label ff-graphik tracking-wide">' +
+			(outro.eyebrow || 'Знакомство') +
+			'</p>' +
+			'<h2 class="fs-about-outro__title">' +
+			(outro.title || 'Приходите на пробный урок') +
+			'</h2>' +
+			'<p class="fs-about-outro__text">' +
+			(outro.text || '') +
+			'</p>' +
+			'<div class="fs-about-outro__actions">' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a>' +
+			'<a href="' +
+			pageHref('contacts.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Контакты</a>' +
+			'</div></div></div></section>';
+
+		upgradeRemotePhotos(host);
 	}
 
 	function renderEventsPage() {
