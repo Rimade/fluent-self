@@ -19,6 +19,7 @@
 		replaceFirstukMedia();
 		injectPillarsSection();
 		injectKidsBanner();
+		renderOffersSection();
 		renderPhotosPage();
 		initFsHeader();
 		injectPageCta();
@@ -135,6 +136,114 @@
 				.join('') +
 			'</div></div>';
 		hero.insertAdjacentElement('afterend', section);
+	}
+
+	function renderOffersSection() {
+		const host = document.querySelector('[data-site-offers]');
+		const offers = window.SITE_CONTENT?.offers;
+		if (!host || !offers?.length) return;
+
+		const list = offers
+			.map((o, i) => {
+				const n = String(i + 1).padStart(2, '0');
+				return (
+					'<button type="button" class="fs-offers__item' +
+					(i === 0 ? ' is-active' : '') +
+					'" data-offer-index="' +
+					i +
+					'" aria-pressed="' +
+					(i === 0 ? 'true' : 'false') +
+					'">' +
+					'<span class="fs-offers__item-num ff-graphik tracking-wide">' +
+					n +
+					'</span>' +
+					'<span class="fs-offers__item-title">' +
+					o.title +
+					'</span>' +
+					'<span class="fs-offers__item-mark" aria-hidden="true"></span>' +
+					'</button>'
+				);
+			})
+			.join('');
+
+		const first = offers[0];
+		host.className = 'fs-offers-wrap';
+		host.innerHTML =
+			'<section class="fs-offers" aria-labelledby="fs-offers-title">' +
+			'<div class="container fs-offers__layout">' +
+			'<div class="fs-offers__stage">' +
+			'<p class="fs-offers__eyebrow ff-graphik tracking-wide">Что мы можем предложить</p>' +
+			'<p class="fs-offers__index ff-graphik" data-offer-index-view>01</p>' +
+			'<h2 id="fs-offers-title" class="fs-offers__title" data-offer-title>' +
+			first.title +
+			'</h2>' +
+			'<p class="fs-offers__text" data-offer-text>' +
+			first.text +
+			'</p>' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-offers__cta ff-graphik tracking-wide">Записаться на пробный</a>' +
+			'</div>' +
+			'<div class="fs-offers__list" role="listbox" aria-label="Преимущества школы">' +
+			list +
+			'</div></div></section>';
+
+		const stageTitle = host.querySelector('[data-offer-title]');
+		const stageText = host.querySelector('[data-offer-text]');
+		const stageIndex = host.querySelector('[data-offer-index-view]');
+		const items = host.querySelectorAll('.fs-offers__item');
+		let current = 0;
+		let autoTimer = null;
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		const stage = host.querySelector('.fs-offers__stage');
+
+		const setActive = (i) => {
+			if (i === current) return;
+			current = i;
+			const o = offers[i];
+			stage?.classList.remove('is-swap');
+			void stage?.offsetWidth;
+			stage?.classList.add('is-swap');
+			stageTitle.textContent = o.title;
+			stageText.textContent = o.text;
+			stageIndex.textContent = String(i + 1).padStart(2, '0');
+			items.forEach((btn, idx) => {
+				const on = idx === i;
+				btn.classList.toggle('is-active', on);
+				btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+			});
+		};
+
+		const stopAuto = () => {
+			if (autoTimer) {
+				clearInterval(autoTimer);
+				autoTimer = null;
+			}
+		};
+
+		const restartAuto = () => {
+			stopAuto();
+			if (reduceMotion) return;
+			autoTimer = window.setInterval(() => setActive((current + 1) % offers.length), 4200);
+		};
+
+		items.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				setActive(Number(btn.dataset.offerIndex));
+				stopAuto();
+			});
+			btn.addEventListener('mouseenter', () => {
+				if (window.matchMedia('(hover: hover)').matches) {
+					setActive(Number(btn.dataset.offerIndex));
+					stopAuto();
+				}
+			});
+		});
+
+		host.addEventListener('mouseenter', stopAuto);
+		host.addEventListener('mouseleave', restartAuto);
+		restartAuto();
 	}
 
 	function injectKidsBanner() {

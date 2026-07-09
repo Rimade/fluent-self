@@ -27,6 +27,7 @@
 .fs-footer .container,
 .fs-page--photo .container,
 .fs-reviews .container,
+.fs-offers .container,
 main > .container,
 .fs-kids-notice .container {
   width: 100%;
@@ -625,6 +626,225 @@ body {
   line-height: 1.55;
   color: var(--fs-muted);
   font-style: italic;
+}
+
+/* ——— Offers (what we offer) ——— */
+
+.fs-offers-wrap {
+  position: relative;
+}
+
+.fs-offers {
+  padding: var(--fs-section-y) 0;
+  background:
+    linear-gradient(165deg, rgba(90, 127, 118, 0.08) 0%, transparent 42%),
+    var(--fs-surface);
+  border-top: 1px solid var(--fs-line);
+  border-bottom: 1px solid var(--fs-line);
+}
+
+.fs-offers__layout {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 3rem);
+}
+
+@media (min-width: 900px) {
+  .fs-offers__layout {
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: stretch;
+    min-height: 28rem;
+  }
+}
+
+.fs-offers__stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+  background: #fdfcfb;
+  border: 1px solid var(--fs-line);
+  border-radius: 4px;
+  box-shadow: var(--fs-shadow);
+  overflow: hidden;
+}
+
+.fs-offers__stage.is-swap .fs-offers__index,
+.fs-offers__stage.is-swap .fs-offers__title,
+.fs-offers__stage.is-swap .fs-offers__text {
+  animation: fs-offers-swap 0.35s ease;
+}
+
+@keyframes fs-offers-swap {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fs-offers__stage::before {
+  content: '';
+  position: absolute;
+  inset: auto -20% -35% auto;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(181, 200, 194, 0.35), transparent 68%);
+  pointer-events: none;
+}
+
+.fs-offers__eyebrow {
+  position: relative;
+  margin: 0 0 1.25rem;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fs-primary-dark);
+}
+
+.fs-offers__index {
+  position: relative;
+  margin: 0 0 0.5rem;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: rgba(90, 127, 118, 0.22);
+}
+
+.fs-offers__title {
+  position: relative;
+  margin: 0;
+  font-size: clamp(1.55rem, 3.4vw, 2.35rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.15;
+  color: var(--fs-ink);
+}
+
+.fs-offers__text {
+  position: relative;
+  margin: 1rem 0 0;
+  max-width: 28em;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--fs-muted);
+}
+
+.fs-offers__cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 1.75rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 1.15rem;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fdfcfb;
+  background: var(--fs-primary);
+  border: 1px solid var(--fs-primary);
+  text-decoration: none;
+  border-radius: 2px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.fs-offers__cta:hover {
+  background: var(--fs-primary-dark);
+  border-color: var(--fs-primary-dark);
+}
+
+.fs-offers__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fs-offers__item {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fs-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.fs-offers__item:hover {
+  background: rgba(253, 252, 251, 0.7);
+  border-color: var(--fs-line);
+}
+
+.fs-offers__item.is-active {
+  background: #fdfcfb;
+  border-color: var(--fs-line);
+  box-shadow: var(--fs-shadow);
+}
+
+.fs-offers__item-num {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--fs-muted);
+}
+
+.fs-offers__item.is-active .fs-offers__item-num {
+  color: var(--fs-primary-dark);
+}
+
+.fs-offers__item-title {
+  font-size: clamp(15px, 1.6vw, 18px);
+  line-height: 1.3;
+}
+
+.fs-offers__item-mark {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.fs-offers__item.is-active .fs-offers__item-mark {
+  background: var(--fs-primary);
+  transform: scale(1.15);
+}
+
+@media (max-width: 899px) {
+  .fs-offers__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+  }
+
+  .fs-offers__item {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+    min-height: 4.5rem;
+    align-content: center;
+  }
+
+  .fs-offers__item-mark {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .fs-offers__list {
+    grid-template-columns: 1fr;
+  }
 }
 
 .courses-item.--on-home .courses-item-body {

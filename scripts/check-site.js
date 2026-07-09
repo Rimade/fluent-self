@@ -78,6 +78,8 @@ async function checkBrowser() {
 				issues.push('index: missing reviews track');
 			if (!(await page.locator('.fs-hero-title').count())) issues.push('index: missing hero title');
 			if (!(await page.locator('.fs-pillars').count())) issues.push('index: missing pillars');
+			if (!(await page.locator('[data-site-offers] .fs-offers__item').count()))
+				issues.push('index: missing offers section');
 		},
 		'events.html': async () => {
 			if (!(await page.locator('.fs-events-upcoming').count()))
