@@ -116,7 +116,7 @@
 		});
 
 		document.querySelectorAll('a[href*="whatsapp.com"], a[href*="wa.me"]').forEach((a) => {
-			if (a.closest('.fs-footer')) return;
+			if (a.closest('.fs-footer') || a.classList.contains('fs-order__wa')) return;
 			if (cfg.whatsapp) a.href = cfg.whatsapp;
 			else {
 				const digits = (cfg.phone || '').replace(/\D/g, '');
@@ -126,13 +126,17 @@
 			a.setAttribute('aria-label', 'Написать в WhatsApp');
 		});
 
-		document.querySelectorAll('.fs-footer a[href*="whatsapp.com"], .fs-footer a[href*="wa.me"]').forEach((a) => {
-			if (cfg.whatsapp) a.href = cfg.whatsapp;
-			else {
-				const digits = (cfg.phone || '').replace(/\D/g, '');
-				if (digits) a.href = `https://wa.me/${digits}`;
-			}
-		});
+		document
+			.querySelectorAll(
+				'.fs-footer a[href*="whatsapp.com"], .fs-footer a[href*="wa.me"], .fs-order__wa',
+			)
+			.forEach((a) => {
+				if (cfg.whatsapp) a.href = cfg.whatsapp;
+				else {
+					const digits = (cfg.phone || '').replace(/\D/g, '');
+					if (digits) a.href = `https://wa.me/${digits}`;
+				}
+			});
 
 		document.querySelectorAll('[data-site-address]').forEach((el) => {
 			el.textContent = cfg.address;

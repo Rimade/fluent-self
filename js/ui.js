@@ -973,12 +973,40 @@
 	}
 
 	function populateTrialCourses() {
-		const select = document.querySelector('[data-site-form-courses] select[name="course"]');
+		const host = document.querySelector('[data-site-form-courses]');
+		const select = host?.querySelector('select[name="course"]');
 		const courses = window.SITE_CONTENT?.trialCourses;
 		if (!select || !courses?.length) return;
+
 		select.innerHTML =
 			'<option value="" selected>Выберите курс</option>' +
 			courses.map((c) => '<option value="' + c.value + '">' + c.label + '</option>').join('');
+
+		if (!host.classList.contains('fs-order-form__chips')) return;
+
+		host.querySelectorAll('.fs-order-chip').forEach((el) => el.remove());
+
+		courses.forEach((c, i) => {
+			const btn = document.createElement('button');
+			btn.type = 'button';
+			btn.className = 'fs-order-chip' + (i === 0 ? ' is-active' : '');
+			btn.textContent = c.label;
+			btn.dataset.courseValue = c.value;
+			btn.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
+			btn.addEventListener('click', () => {
+				select.value = c.value;
+				host.querySelectorAll('.fs-order-chip').forEach((chip) => {
+					const on = chip === btn;
+					chip.classList.toggle('is-active', on);
+					chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+				});
+			});
+			host.appendChild(btn);
+		});
+
+		if (courses[0]) {
+			select.value = courses[0].value;
+		}
 	}
 
 	function updateThemeColor() {

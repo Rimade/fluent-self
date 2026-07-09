@@ -88,6 +88,9 @@ async function checkBrowser() {
 		'order.html': async () => {
 			const opts = await page.locator('[data-site-form-courses] select option').count();
 			if (opts < 5) issues.push(`order: expected course options, got ${opts}`);
+			if (!(await page.locator('.fs-order').count())) issues.push('order: missing fs-order layout');
+			if (!(await page.locator('.fs-order-chip').count()))
+				issues.push('order: missing course chips');
 		},
 		'kursy-dlya-detej.html': async () => {
 			if (!(await page.locator('.fs-kids-notice').count()))
