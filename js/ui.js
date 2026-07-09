@@ -21,6 +21,7 @@
 		injectKidsBanner();
 		renderOffersSection();
 		renderAdultCoursesPage();
+		renderCorpPage();
 		renderPhotosPage();
 		initFsHeader();
 		injectPageCta();
@@ -1107,6 +1108,187 @@
 
 		setAngle(0, false);
 		if (!reduceMotion) raf = requestAnimationFrame(tick);
+	}
+
+	function renderCorpPage() {
+		const host = document.querySelector('[data-site-corp]');
+		const data = window.SITE_CONTENT?.corporate;
+		if (!host || !data) return;
+
+		const cfg = window.SITE_CONFIG || {};
+		const kidsUrl = cfg.kidsSite || 'https://fluentselfkids.ru';
+		const hero = data.hero || {};
+		const trust = hero.trust || {};
+
+		const introHtml = (data.intro || [])
+			.map((p) => '<p class="fs-corp-intro__text">' + p + '</p>')
+			.join('');
+
+		const benefitsHtml = (data.benefits || [])
+			.map(
+				(b, i) =>
+					'<article class="fs-corp-benefit">' +
+					'<span class="fs-corp-benefit__num ff-graphik" aria-hidden="true">' +
+					String(i + 1).padStart(2, '0') +
+					'</span>' +
+					'<h3 class="fs-corp-benefit__title ff-graphik tracking-wide">' +
+					b.title +
+					'</h3>' +
+					'<p class="fs-corp-benefit__text">' +
+					b.text +
+					'</p></article>',
+			)
+			.join('');
+
+		const formatsHtml = (data.formats || [])
+			.map(
+				(f, i) =>
+					'<article class="fs-corp-format">' +
+					'<span class="fs-corp-format__num ff-graphik" aria-hidden="true">' +
+					String(i + 1).padStart(2, '0') +
+					'</span>' +
+					'<h3 class="fs-corp-format__title">' +
+					f.title +
+					'</h3>' +
+					'<p class="fs-corp-format__text">' +
+					f.text +
+					'</p></article>',
+			)
+			.join('');
+
+		const clientsHtml = (data.clients || [])
+			.map((name) => '<li class="fs-corp-client">' + name + '</li>')
+			.join('');
+
+		const stepsHtml = (data.steps || [])
+			.map(
+				(s, i) =>
+					'<article class="fs-corp-step">' +
+					'<span class="fs-corp-step__num ff-graphik" aria-hidden="true">' +
+					String(i + 1).padStart(2, '0') +
+					'</span>' +
+					'<h3 class="fs-corp-step__title ff-graphik tracking-wide">' +
+					s.title +
+					'</h3>' +
+					'<p class="fs-corp-step__text">' +
+					s.text +
+					'</p></article>',
+			)
+			.join('');
+
+		const trustFormats = (trust.formats || [])
+			.map((f) => '<span class="fs-corp-trust__item ff-graphik tracking-wide">' + f + '</span>')
+			.join('');
+
+		const outro = data.outro || {};
+		const phone = cfg.phone || '';
+		const phoneHref = cfg.phoneHref || '#';
+
+		host.className = 'fs-corp-page';
+		host.innerHTML =
+			'<header class="fs-corp-hero">' +
+			'<div class="container fs-corp-hero__grid">' +
+			'<div class="fs-corp-hero__copy">' +
+			'<p class="fs-corp-hero__eyebrow ff-graphik tracking-wide">' +
+			(hero.eyebrow || 'Для бизнеса') +
+			'</p>' +
+			'<h1 class="fs-corp-hero__title">' +
+			(hero.title || 'Языки для команды') +
+			'</h1>' +
+			'<p class="fs-corp-hero__lead">' +
+			(hero.lead || '') +
+			'</p>' +
+			'<div class="fs-corp-hero__actions">' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Обсудить программу</a>' +
+			'<a href="' +
+			pageHref('contacts.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Контакты</a>' +
+			'</div>' +
+			'<nav class="fs-corp-hero__switch" aria-label="Другие направления">' +
+			'<a href="' +
+			kidsUrl +
+			'" target="_blank" rel="noopener">Для детей</a>' +
+			'<span aria-hidden="true">·</span>' +
+			'<a href="' +
+			pageHref('kursy-dlya-vzroslyh.html') +
+			'">Для взрослых</a></nav></div>' +
+			'<aside class="fs-corp-hero__trust" aria-label="Форматы и языки">' +
+			'<div class="fs-corp-trust">' +
+			'<p class="fs-corp-trust__label ff-graphik tracking-wide">Форматы</p>' +
+			'<div class="fs-corp-trust__row">' +
+			trustFormats +
+			'</div>' +
+			(trust.languages
+				? '<p class="fs-corp-trust__label ff-graphik tracking-wide">Языки</p>' +
+					'<p class="fs-corp-trust__langs">' +
+					trust.languages +
+					'</p>'
+				: '') +
+			'</div></aside></div></header>' +
+			'<section class="fs-corp-intro" aria-labelledby="fs-corp-intro-title">' +
+			'<div class="container">' +
+			'<div class="fs-corp-section-head">' +
+			'<p class="fs-corp-section-head__eyebrow ff-graphik tracking-wide">Подход</p>' +
+			'<h2 id="fs-corp-intro-title" class="fs-corp-section-head__title">Зачем компаниям</h2>' +
+			'</div>' +
+			'<div class="fs-corp-intro__body">' +
+			introHtml +
+			'</div>' +
+			'<div class="fs-corp-benefits">' +
+			benefitsHtml +
+			'</div></div></section>' +
+			'<section class="fs-corp-formats" aria-labelledby="fs-corp-formats-title">' +
+			'<div class="container">' +
+			'<div class="fs-corp-section-head">' +
+			'<p class="fs-corp-section-head__eyebrow ff-graphik tracking-wide">Форматы</p>' +
+			'<h2 id="fs-corp-formats-title" class="fs-corp-section-head__title">Как организуем обучение</h2>' +
+			'</div>' +
+			'<div class="fs-corp-formats__grid">' +
+			formatsHtml +
+			'</div></div></section>' +
+			'<section class="fs-corp-clients" aria-labelledby="fs-corp-clients-title">' +
+			'<div class="container">' +
+			'<div class="fs-corp-section-head">' +
+			'<p class="fs-corp-section-head__eyebrow ff-graphik tracking-wide">Опыт</p>' +
+			'<h2 id="fs-corp-clients-title" class="fs-corp-section-head__title">Нам доверяют</h2>' +
+			'</div>' +
+			'<ul class="fs-corp-clients__list">' +
+			clientsHtml +
+			'</ul></div></section>' +
+			'<section class="fs-corp-process" aria-labelledby="fs-corp-process-title">' +
+			'<div class="container">' +
+			'<div class="fs-corp-section-head">' +
+			'<p class="fs-corp-section-head__eyebrow ff-graphik tracking-wide">Старт</p>' +
+			'<h2 id="fs-corp-process-title" class="fs-corp-section-head__title">Как начать сотрудничество</h2>' +
+			'</div>' +
+			'<div class="fs-corp-steps">' +
+			stepsHtml +
+			'</div></div></section>' +
+			'<section class="fs-corp-outro">' +
+			'<div class="container"><div class="fs-corp-outro__inner">' +
+			'<p class="fs-corp-outro__label ff-graphik tracking-wide">' +
+			(outro.eyebrow || 'Сотрудничество') +
+			'</p>' +
+			'<h2 class="fs-corp-outro__title">' +
+			(outro.title || 'Обсудим программу для вашей компании') +
+			'</h2>' +
+			'<p class="fs-corp-outro__text">' +
+			(outro.text || '') +
+			'</p>' +
+			'<div class="fs-corp-outro__actions">' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Оставить заявку</a>' +
+			(phone
+				? '<a href="' +
+					phoneHref +
+					'" class="fs-corp-outro__phone ff-graphik tracking-wide">' +
+					phone +
+					'</a>'
+				: '') +
+			'</div></div></div></section>';
 	}
 
 	function renderEventsPage() {
