@@ -386,10 +386,12 @@
 
 		const originals = Array.from(track.children);
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const duration = reduceMotion ? 0 : 420;
+		const copies = 5;
+		const mid = Math.floor(copies / 2) * count;
 
-		// Три копии для бесшовного loop
 		track.innerHTML = '';
-		for (let copy = 0; copy < 3; copy++) {
+		for (let copy = 0; copy < copies; copy++) {
 			originals.forEach((node, i) => {
 				const clone = node.cloneNode(true);
 				clone.dataset.copy = String(copy);
@@ -398,14 +400,93 @@
 			});
 		}
 
-		let index = count; // старт на средней копии
+		let index = mid;
 		let step = 0;
 		let sidePad = 0;
 		let animating = false;
 		let autoTimer = null;
 		let drag = null;
+		let settleTimer = 0;
 
-		const xFor = (i, dragDx) => sidePad - i * step + (dragDx || 0);
+		const loopW = () => count * step;
+		const xFor = (i) => sidePad - i * step;
+
+		const forceReflow = () => {
+			void track.offsetHeight;
+		};
+
+		const readX = () => {
+			const t = getComputedStyle(track).transform;
+			if (!t || t === 'none') return xFor(index);
+			const m = t.match(/matrix(?:3d)?\(([^)]+)\)/);
+			if (!m) return xFor(index);
+			const parts = m[1].split(',').map(Number);
+			return parts.length === 16 ? parts[12] : parts[4];
+		};
+
+		const setX = (x, animate) => {
+			track.style.transition =
+				animate && duration
+					? 'transform ' + duration + 'ms cubic-bezier(0.22, 1, 0.36, 1)'
+					: 'none';
+			track.style.transform = 'translate3d(' + x + 'px,0,0)';
+		};
+
+		/** Прыжок на ±N циклов без анимации — картинка та же, индекс в середине */
+		const snapLoop = (x) => {
+			const loop = loopW();
+			if (!loop) return { x, index: Math.round((sidePad - x) / step) };
+			let next = x;
+			// Держим «логический» индекс примерно в [mid - count, mid + 2*count)
+			let i = (sidePad - next) / step;
+			while (i < mid - count) {
+				next -= loop;
+				i += count;
+			}
+			while (i >= mid + count * 2) {
+				next += loop;
+				i -= count;
+			}
+			return { x: next, index: Math.round(i) };
+		};
+
+		const hardSnapToIndex = (i) => {
+			index = i;
+			setX(xFor(index), false);
+			forceReflow();
+		};
+
+		const settleTo = (targetIndex) => {
+			if (!step) return;
+			window.clearTimeout(settleTimer);
+
+			// Берём реальную позицию, телепортируем в середину (картинка та же),
+			// затем анимируем только короткий шаг к соседней/целевой карточке.
+			const now = snapLoop(readX());
+			hardSnapToIndex(now.index);
+
+			let target = targetIndex;
+			// Цель тоже приводим к той же «полосе», чтобы анимация была короткой
+			while (target < now.index - count) target += count;
+			while (target > now.index + count) target -= count;
+
+			if (target === now.index) {
+				animating = false;
+				restartAuto();
+				return;
+			}
+
+			animating = true;
+			index = target;
+			setX(xFor(index), true);
+
+			settleTimer = window.setTimeout(() => {
+				const after = snapLoop(xFor(index));
+				hardSnapToIndex(after.index);
+				animating = false;
+				restartAuto();
+			}, duration + 20);
+		};
 
 		const measure = () => {
 			const card = track.querySelector('.fs-review-card');
@@ -425,72 +506,70 @@
 					: 24;
 				sidePad = Math.max(16, headLeft);
 			}
-			apply(false);
-		};
-
-		const apply = (animate) => {
-			track.style.transition =
-				animate && !reduceMotion ? 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
-			track.style.transform = 'translate3d(' + xFor(index) + 'px,0,0)';
-		};
-
-		const normalize = () => {
-			if (index < count) {
-				index += count;
-				apply(false);
-			} else if (index >= count * 2) {
-				index -= count;
-				apply(false);
-			}
-			animating = false;
+			const logical = ((index % count) + count) % count;
+			hardSnapToIndex(mid + logical);
 		};
 
 		const go = (delta) => {
-			if (animating || !step) return;
-			animating = true;
-			index += delta;
-			apply(true);
-			window.setTimeout(normalize, reduceMotion ? 0 : 560);
-			restartAuto();
+			if (drag || !step) return;
+			if (animating) {
+				window.clearTimeout(settleTimer);
+				const now = snapLoop(readX());
+				hardSnapToIndex(now.index);
+				animating = false;
+			}
+			const now = snapLoop(readX());
+			hardSnapToIndex(now.index);
+			settleTo(now.index + delta);
 		};
 
 		const onPointerDown = (e) => {
 			if (e.pointerType === 'mouse' && e.button !== 0) return;
+			stopAuto();
+			window.clearTimeout(settleTimer);
+
+			const now = snapLoop(readX());
+			hardSnapToIndex(now.index);
+			animating = false;
+
 			drag = {
 				id: e.pointerId,
-				x: e.clientX,
-				startIndex: index,
-				moved: false,
+				startX: e.clientX,
+				originX: xFor(index),
+				baseIndex: index,
 			};
 			viewport.setPointerCapture?.(e.pointerId);
-			track.style.transition = 'none';
-			stopAuto();
 		};
 
 		const onPointerMove = (e) => {
 			if (!drag || e.pointerId !== drag.id || !step) return;
-			const dx = e.clientX - drag.x;
-			if (Math.abs(dx) > 4) drag.moved = true;
-			track.style.transform = 'translate3d(' + xFor(drag.startIndex, dx) + 'px,0,0)';
+			const dx = e.clientX - drag.startX;
+			const snapped = snapLoop(drag.originX + dx);
+			// Если snapLoop сдвинул цикл — подтягиваем origin, чтобы не было скачка
+			if (Math.abs(snapped.x - (drag.originX + dx)) > 1) {
+				drag.originX = snapped.x - dx;
+			}
+			setX(snapped.x, false);
 		};
 
 		const onPointerUp = (e) => {
 			if (!drag || e.pointerId !== drag.id || !step) return;
-			const dx = e.clientX - drag.x;
-			const threshold = Math.min(80, step * 0.22);
+			const dx = e.clientX - drag.startX;
+			const originX = drag.originX;
 			drag = null;
-			if (dx <= -threshold) go(1);
-			else if (dx >= threshold) go(-1);
-			else {
-				apply(true);
-				window.setTimeout(
-					() => {
-						animating = false;
-					},
-					reduceMotion ? 0 : 560,
-				);
-				restartAuto();
+
+			const snapped = snapLoop(originX + dx);
+			setX(snapped.x, false);
+			forceReflow();
+
+			// Цель — ближайшая карточка к фактической позиции после drag
+			let target = Math.round((sidePad - snapped.x) / step);
+			const from = Math.round((sidePad - originX) / step);
+			const threshold = Math.min(56, step * 0.18);
+			if (target === from && Math.abs(dx) >= threshold) {
+				target += dx < 0 ? 1 : -1;
 			}
+			settleTo(target);
 		};
 
 		const stopAuto = () => {
@@ -502,7 +581,7 @@
 
 		const restartAuto = () => {
 			stopAuto();
-			if (reduceMotion) return;
+			if (reduceMotion || drag) return;
 			autoTimer = window.setInterval(() => go(1), 5200);
 		};
 
@@ -513,7 +592,9 @@
 		viewport.addEventListener('pointerup', onPointerUp);
 		viewport.addEventListener('pointercancel', onPointerUp);
 		viewport.addEventListener('mouseenter', stopAuto);
-		viewport.addEventListener('mouseleave', restartAuto);
+		viewport.addEventListener('mouseleave', () => {
+			if (!drag) restartAuto();
+		});
 		host.addEventListener(
 			'keydown',
 			(e) => {
@@ -528,10 +609,6 @@
 			},
 			true,
 		);
-
-		track.addEventListener('transitionend', (e) => {
-			if (e.target === track && e.propertyName === 'transform') normalize();
-		});
 
 		const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
 		ro?.observe(viewport);
