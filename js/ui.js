@@ -20,6 +20,7 @@
 		injectPillarsSection();
 		injectKidsBanner();
 		renderOffersSection();
+		renderAdultCoursesPage();
 		renderPhotosPage();
 		initFsHeader();
 		injectPageCta();
@@ -724,6 +725,150 @@
 		window.addEventListener('resize', measure);
 		measure();
 		restartAuto();
+	}
+
+	function renderAdultCoursesPage() {
+		const host = document.querySelector('[data-site-adult-courses]');
+		const data = window.SITE_CONTENT?.adultCourses;
+		if (!host || !data?.items?.length) return;
+
+		const hero = data.hero || {};
+		const filters = data.filters || [{ id: 'all', label: 'Все' }];
+		const kidsUrl = (window.SITE_CONFIG || {}).kidsSite || 'https://fluentselfkids.ru';
+
+		const filterHtml = filters
+			.map(
+				(f, i) =>
+					'<button type="button" class="fs-courses-filter' +
+					(i === 0 ? ' is-active' : '') +
+					'" data-course-filter="' +
+					f.id +
+					'" aria-pressed="' +
+					(i === 0 ? 'true' : 'false') +
+					'">' +
+					f.label +
+					'</button>',
+			)
+			.join('');
+
+		const cards = data.items
+			.map((c, i) => {
+				const n = String(i + 1).padStart(2, '0');
+				return (
+					'<a href="' +
+					pageHref('order.html') +
+					'" class="fs-course-card fs-course-card--' +
+					(c.tone || 'sage') +
+					(c.featured ? ' fs-course-card--featured' : '') +
+					'" data-course-lang="' +
+					(c.lang || 'all') +
+					'">' +
+					'<span class="fs-course-card__num ff-graphik" aria-hidden="true">' +
+					n +
+					'</span>' +
+					'<span class="fs-course-card__body">' +
+					'<span class="fs-course-card__title">' +
+					c.title +
+					'</span>' +
+					'<span class="fs-course-card__text">' +
+					c.text +
+					'</span>' +
+					'<span class="fs-course-card__meta">' +
+					'<span class="fs-course-card__pace">' +
+					c.meta +
+					'</span>' +
+					'<span class="fs-course-card__go ff-graphik tracking-wide">Записаться</span>' +
+					'</span></span></a>'
+				);
+			})
+			.join('');
+
+		const formats = (data.formats || [])
+			.map(
+				(f) =>
+					'<article class="fs-courses-format"><h3 class="fs-courses-format__title">' +
+					f.title +
+					'</h3><p class="fs-courses-format__text">' +
+					f.text +
+					'</p></article>',
+			)
+			.join('');
+
+		host.className = 'fs-courses-page';
+		host.innerHTML =
+			'<header class="fs-courses-hero">' +
+			'<div class="container fs-courses-hero__grid">' +
+			'<div class="fs-courses-hero__copy">' +
+			'<p class="fs-courses-hero__eyebrow ff-graphik tracking-wide">' +
+			(hero.eyebrow || 'Курсы') +
+			'</p>' +
+			'<h1 class="fs-courses-hero__title">' +
+			(hero.title || 'Курсы для взрослых') +
+			'</h1>' +
+			'<p class="fs-courses-hero__lead">' +
+			(hero.lead || '') +
+			'</p>' +
+			'<div class="fs-courses-hero__actions">' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Пробный урок</a>' +
+			'<a href="#fs-courses-catalog" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Смотреть курсы</a>' +
+			'</div></div>' +
+			'<div class="fs-courses-hero__aside" aria-hidden="true">' +
+			'<div class="fs-courses-hero__orbit">' +
+			'<span>EN</span><span>DE</span><span>FR</span><span>ES</span><span>IT</span><span>ZH</span><span>AR</span>' +
+			'</div></div></div>' +
+			'<nav class="container fs-courses-hero__switch" aria-label="Другие направления">' +
+			'<a href="' +
+			kidsUrl +
+			'" target="_blank" rel="noopener">Для детей</a>' +
+			'<span aria-hidden="true">·</span>' +
+			'<a href="' +
+			pageHref('korporativnoe-obuchenie.html') +
+			'">Для бизнеса</a></nav></header>' +
+			'<section class="fs-courses-formats" aria-label="Форматы обучения">' +
+			'<div class="container"><div class="fs-courses-formats__grid">' +
+			formats +
+			'</div></div></section>' +
+			'<section class="fs-courses-catalog" id="fs-courses-catalog" aria-labelledby="fs-courses-catalog-title">' +
+			'<div class="container">' +
+			'<div class="fs-courses-catalog__head">' +
+			'<div><p class="fs-courses-catalog__eyebrow ff-graphik tracking-wide">Каталог</p>' +
+			'<h2 id="fs-courses-catalog-title" class="fs-courses-catalog__title">Выберите программу</h2></div>' +
+			'<div class="fs-courses-filters" role="group" aria-label="Фильтр курсов">' +
+			filterHtml +
+			'</div></div>' +
+			'<div class="fs-courses-grid" data-courses-grid>' +
+			cards +
+			'</div></div></section>' +
+			'<section class="fs-courses-outro">' +
+			'<div class="container"><div class="fs-courses-outro__inner">' +
+			'<p class="fs-courses-outro__label ff-graphik tracking-wide">Не уверены в уровне</p>' +
+			'<h2 class="fs-courses-outro__title">Начните с бесплатного пробного</h2>' +
+			'<p class="fs-courses-outro__text">Познакомитесь с преподавателем, форматом и атмосферой — без обязательств.</p>' +
+			'<a href="' +
+			pageHref('order.html') +
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Записаться</a>' +
+			'</div></div></section>';
+
+		const grid = host.querySelector('[data-courses-grid]');
+		const filterBtns = host.querySelectorAll('[data-course-filter]');
+		filterBtns.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const id = btn.dataset.courseFilter;
+				filterBtns.forEach((b) => {
+					const on = b === btn;
+					b.classList.toggle('is-active', on);
+					b.setAttribute('aria-pressed', on ? 'true' : 'false');
+				});
+				grid?.querySelectorAll('.fs-course-card').forEach((card) => {
+					const lang = card.dataset.courseLang;
+					const show = id === 'all' || lang === id;
+					card.hidden = !show;
+					card.classList.toggle('is-hidden', !show);
+				});
+			});
+		});
 	}
 
 	function renderEventsPage() {

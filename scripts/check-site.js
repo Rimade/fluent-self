@@ -88,6 +88,14 @@ async function checkBrowser() {
 			if (!(await page.locator('.fs-events-format').count()))
 				issues.push('events: missing format cards');
 		},
+		'kursy-dlya-vzroslyh.html': async () => {
+			if (!(await page.locator('.fs-courses-hero').count()))
+				issues.push('adult courses: missing hero');
+			const n = await page.locator('.fs-course-card').count();
+			if (n < 6) issues.push(`adult courses: expected >=6 cards, got ${n}`);
+			if (!(await page.locator('.fs-courses-filter').count()))
+				issues.push('adult courses: missing filters');
+		},
 		'order.html': async () => {
 			const opts = await page.locator('[data-site-form-courses] select option').count();
 			if (opts < 5) issues.push(`order: expected course options, got ${opts}`);
