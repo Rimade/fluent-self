@@ -56,6 +56,7 @@
 		if (!host) return;
 
 		hero.querySelector('.container')?.classList.remove('overflow-hidden');
+		initHomeHeroMedia(hero);
 
 		const stack = document.createElement('div');
 		stack.className = 'fs-hero-stack';
@@ -84,6 +85,26 @@
 		if (legacyLang) legacyLang.setAttribute('hidden', '');
 
 		initHeroTypewriter(title, langEl);
+	}
+
+	function initHomeHeroMedia(hero) {
+		if (!hero) return;
+		hero.classList.add('home-hero--media');
+
+		let photo = hero.querySelector('[data-home-hero-photo]');
+		if (!photo) {
+			const media = document.createElement('div');
+			media.className = 'home-hero__media';
+			media.setAttribute('aria-hidden', 'true');
+			media.innerHTML =
+				'<div class="home-hero__photo" data-home-hero-photo></div><div class="home-hero__veil"></div>';
+			hero.prepend(media);
+			photo = media.querySelector('[data-home-hero-photo]');
+		}
+
+		const cover = (window.SITE_CONFIG || {}).brandCover || 'assets/brand/fluent-self-cover.png';
+		const src = window.FS_PATHS?.asset?.(cover) || cover;
+		photo.style.backgroundImage = `url("${src}")`;
 	}
 
 	function initHeroTypewriter(titleEl, langEl) {
@@ -368,7 +389,9 @@
 		if (!header) return;
 
 		const main = document.querySelector('[data-menu-page]');
-		const overlayPage = !!main?.querySelector('.page-cover, .fs-photo-hero, .fs-about-hero');
+		const overlayPage = !!main?.querySelector(
+			'.page-cover, .fs-photo-hero, .fs-about-hero, .home-hero--media',
+		);
 
 		if (overlayPage) {
 			header.classList.add('fs-header--overlay');
@@ -2114,6 +2137,6 @@
 			meta.name = 'theme-color';
 			document.head.appendChild(meta);
 		}
-		meta.content = '#5a7f76';
+		meta.content = document.querySelector('.home-hero--media') ? '#1c1b1a' : '#5a7f76';
 	}
 })();
