@@ -388,13 +388,43 @@
 
 		const mobile = header.querySelector('[data-fs-mobile-menu]');
 		const openBtn = header.querySelector('[data-fs-menu-open]');
+		let menuCloseTimer = 0;
 
 		const setMenuOpen = (open) => {
-			header.classList.toggle('fs-header--menu-open', open);
-			mobile?.classList.toggle('is-open', open);
-			if (mobile) mobile.hidden = !open;
-			openBtn?.setAttribute('aria-expanded', open ? 'true' : 'false');
-			document.body.style.overflow = open ? 'hidden' : '';
+			window.clearTimeout(menuCloseTimer);
+			if (!mobile) return;
+
+			if (open) {
+				mobile.hidden = false;
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => {
+						header.classList.add('fs-header--menu-open');
+						mobile.classList.add('is-open');
+					});
+				});
+				openBtn?.setAttribute('aria-expanded', 'true');
+				document.body.style.overflow = 'hidden';
+				return;
+			}
+
+			header.classList.remove('fs-header--menu-open');
+			mobile.classList.remove('is-open');
+			openBtn?.setAttribute('aria-expanded', 'false');
+			document.body.style.overflow = '';
+
+			const finish = () => {
+				if (!mobile.classList.contains('is-open')) mobile.hidden = true;
+			};
+
+			const panel = mobile.querySelector('.fs-mobile-menu__panel');
+			const onEnd = (e) => {
+				if (e.target !== panel || e.propertyName !== 'transform') return;
+				panel.removeEventListener('transitionend', onEnd);
+				window.clearTimeout(menuCloseTimer);
+				finish();
+			};
+			panel?.addEventListener('transitionend', onEnd);
+			menuCloseTimer = window.setTimeout(finish, 450);
 		};
 
 		openBtn?.addEventListener('click', () =>
@@ -402,6 +432,9 @@
 		);
 		mobile?.querySelectorAll('[data-fs-menu-close]').forEach((el) => {
 			el.addEventListener('click', () => setMenuOpen(false));
+		});
+		mobile?.querySelectorAll('a').forEach((link) => {
+			link.addEventListener('click', () => setMenuOpen(false));
 		});
 
 		document.addEventListener('keydown', (e) => {
