@@ -34,31 +34,122 @@
 		updateThemeColor();
 	}
 
-	function initAdultHero() {
-		const hero = document.querySelector('.home-hero');
-		const typeitHost = hero?.querySelector('[data-behavior="typeit"]');
-		if (!hero || !typeitHost || hero.querySelector('.fs-hero-title')) return;
-
-		const title = document.createElement('h1');
-		title.className = 'fs-hero-title fz-xl-vw uppercase';
-		title.textContent = 'Школа иностранных языков';
-
-		const subtitle = document.createElement('p');
-		subtitle.className = 'fs-hero-subtitle';
-		subtitle.textContent = 'Спокойная атмосфера, живое общение и программы для взрослых';
-
-		typeitHost.before(title);
-		title.after(subtitle);
-	}
+	const HERO_PHRASES = [
+		{ text: 'Изучайте язык с нами', lang: 'Русский' },
+		{ text: 'Learn English with us', lang: 'English' },
+		{ text: 'Sprachen entdecken', lang: 'Deutsch' },
+		{ text: 'Parlez avec confiance', lang: 'Français' },
+		{ text: 'Habla con fluidez', lang: 'Español' },
+		{ text: 'Parla con naturalezza', lang: 'Italiano' },
+	];
 
 	function pageHref(file) {
 		return window.FS_PATHS?.page(file) || file;
 	}
 
-	function initHeroCta() {
+	function initAdultHero() {
 		const hero = document.querySelector('.home-hero');
 		const typeitHost = hero?.querySelector('[data-behavior="typeit"]');
-		if (!hero || !typeitHost || hero.querySelector('.fs-hero-cta')) return;
+		if (!hero || !typeitHost || hero.querySelector('.fs-hero-stack')) return;
+
+		const host = typeitHost.parentElement;
+		if (!host) return;
+
+		hero.querySelector('.container')?.classList.remove('overflow-hidden');
+
+		const stack = document.createElement('div');
+		stack.className = 'fs-hero-stack';
+
+		const title = document.createElement('h1');
+		title.className = 'fs-hero-title fz-xl-vw uppercase';
+		title.innerHTML =
+			'<span class="sr-only">Школа иностранных языков — </span>' +
+			'<span class="fs-hero-typewriter" aria-live="polite">' +
+			'<span class="fs-hero-typewriter__text" data-typewriter-text></span>' +
+			'<span class="fs-hero-cursor" aria-hidden="true"></span>' +
+			'</span>';
+
+		const langEl = document.createElement('p');
+		langEl.className = 'fs-hero-lang ff-graphik tracking-wide';
+		langEl.setAttribute('aria-hidden', 'true');
+
+		const subtitle = document.createElement('p');
+		subtitle.className = 'fs-hero-subtitle';
+		subtitle.textContent = 'Коммуникативный подход, живое общение и программы для взрослых';
+
+		stack.append(title, langEl, subtitle);
+		host.appendChild(stack);
+
+		const legacyLang = hero.querySelector('[data-typeit-translate]');
+		if (legacyLang) legacyLang.setAttribute('hidden', '');
+
+		initHeroTypewriter(title, langEl);
+	}
+
+	function initHeroTypewriter(titleEl, langEl) {
+		const textEl = titleEl.querySelector('[data-typewriter-text]');
+		if (!textEl) return;
+
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (reducedMotion) {
+			textEl.textContent = HERO_PHRASES[0].text;
+			if (langEl) langEl.textContent = HERO_PHRASES[0].lang;
+			titleEl.classList.add('is-ready');
+			return;
+		}
+
+		let phraseIndex = 0;
+		let charIndex = 0;
+		let deleting = false;
+		let timer = 0;
+
+		function schedule(fn, delay) {
+			window.clearTimeout(timer);
+			timer = window.setTimeout(fn, delay);
+		}
+
+		function setLangLabel(index) {
+			if (!langEl) return;
+			langEl.textContent = HERO_PHRASES[index].lang;
+		}
+
+		function tick() {
+			const phrase = HERO_PHRASES[phraseIndex];
+			const full = phrase.text;
+
+			if (!deleting) {
+				charIndex += 1;
+				textEl.textContent = full.slice(0, charIndex);
+				if (charIndex >= full.length) {
+					deleting = true;
+					schedule(tick, 2400);
+					return;
+				}
+				schedule(tick, 48 + Math.random() * 30);
+				return;
+			}
+
+			charIndex -= 1;
+			textEl.textContent = full.slice(0, Math.max(0, charIndex));
+			if (charIndex <= 0) {
+				deleting = false;
+				phraseIndex = (phraseIndex + 1) % HERO_PHRASES.length;
+				setLangLabel(phraseIndex);
+				schedule(tick, 420);
+				return;
+			}
+			schedule(tick, 28);
+		}
+
+		setLangLabel(0);
+		titleEl.classList.add('is-ready');
+		schedule(tick, 480);
+	}
+
+	function initHeroCta() {
+		const hero = document.querySelector('.home-hero');
+		const stack = hero?.querySelector('.fs-hero-stack');
+		if (!hero || !stack || hero.querySelector('.fs-hero-cta')) return;
 
 		const wrap = document.createElement('div');
 		wrap.className = 'fs-hero-cta';
@@ -68,9 +159,8 @@
 			'" class="fs-hero-cta__btn fs-hero-cta__btn--fill ff-graphik tracking-wide">Бесплатный пробный урок</a>' +
 			'<a href="' +
 			pageHref('kursy-dlya-vzroslyh.html') +
-			'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Смотреть курсы</a>' +
-			'<p class="fs-hero-cta__note">Группы до 6 человек · носители языка · удобный график</p>';
-		typeitHost.parentElement?.appendChild(wrap);
+			'" class="fs-hero-cta__btn fs-hero-cta__btn--outline ff-graphik tracking-wide">Смотреть курсы</a>';
+		stack.appendChild(wrap);
 	}
 
 	function purgeCelebrities() {

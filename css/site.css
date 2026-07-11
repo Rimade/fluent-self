@@ -21,16 +21,7 @@
   outline-offset: 2px;
 }
 
-.whatsapp-float {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 50;
-}
-
-.whatsapp-float .whatsapp-button {
-  display: block;
-}
+/* WhatsApp float — полные стили в brand.css */
 
 footer iframe,
 .map iframe {
