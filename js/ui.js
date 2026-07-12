@@ -258,6 +258,7 @@
 		const offers = window.SITE_CONTENT?.offers;
 		if (!host || !offers?.length) return;
 
+		const total = String(offers.length).padStart(2, '0');
 		const list = offers
 			.map((o, i) => {
 				const n = String(i + 1).padStart(2, '0');
@@ -284,12 +285,14 @@
 		const first = offers[0];
 		host.className = 'fs-offers-wrap';
 		host.innerHTML =
-			'<section class="fs-offers" aria-labelledby="fs-offers-title">' +
+			'<section class="fs-offers" aria-label="Что мы можем предложить">' +
+			'<div class="fs-offers__scroll-story">' +
+			'<div class="fs-offers__pin">' +
 			'<div class="container fs-offers__layout">' +
-			'<div class="fs-offers__stage">' +
+			'<div class="fs-offers__stage" data-offers-stage aria-live="polite" aria-atomic="true">' +
 			'<p class="fs-offers__eyebrow ff-graphik tracking-wide">Что мы можем предложить</p>' +
-			'<p class="fs-offers__index ff-graphik" data-offer-index-view>01</p>' +
-			'<h2 id="fs-offers-title" class="fs-offers__title" data-offer-title>' +
+			'<p class="fs-offers__index ff-graphik" data-offer-index-view aria-hidden="true">01</p>' +
+			'<h2 class="fs-offers__title" data-offer-title id="fs-offers-title">' +
 			first.title +
 			'</h2>' +
 			'<p class="fs-offers__text" data-offer-text>' +
@@ -299,27 +302,64 @@
 			pageHref('order.html') +
 			'" class="fs-offers__cta ff-graphik tracking-wide">Записаться на пробный</a>' +
 			'</div>' +
-			'<div class="fs-offers__list" role="listbox" aria-label="Преимущества школы">' +
+			'<div class="fs-offers__list" role="listbox" aria-label="Преимущества школы" data-offers-list>' +
 			list +
-			'</div></div></section>';
+			'</div></div>' +
+			'<div class="container fs-offers__progress-wrap">' +
+			'<div class="fs-offers__progress" role="progressbar" aria-valuemin="1" aria-valuemax="' +
+			offers.length +
+			'" aria-valuenow="1" aria-label="Пункты преимуществ" data-offers-progress>' +
+			'<div class="fs-offers__progress-meta ff-graphik tracking-wide" aria-hidden="true">' +
+			'<span data-offers-progress-current>01</span>' +
+			'<span class="fs-offers__progress-sep">/</span>' +
+			'<span data-offers-progress-total>' +
+			total +
+			'</span></div>' +
+			'<div class="fs-offers__progress-track" aria-hidden="true">' +
+			'<span class="fs-offers__progress-fill" data-offers-progress-fill></span></div>' +
+			'<p class="fs-offers__progress-hint ff-graphik tracking-wide" aria-hidden="true">Листайте вниз · пункты меняются со скроллом</p>' +
+			'</div></div></div>' +
+			'<div class="fs-offers__steps" data-offers-steps aria-hidden="true"></div>' +
+			'</div></section>';
 
+		const section = host.querySelector('.fs-offers');
 		const stageTitle = host.querySelector('[data-offer-title]');
 		const stageText = host.querySelector('[data-offer-text]');
 		const stageIndex = host.querySelector('[data-offer-index-view]');
+		const progressFill = host.querySelector('[data-offers-progress-fill]');
+		const progressCurrent = host.querySelector('[data-offers-progress-current]');
+		const progressBar = host.querySelector('[data-offers-progress]');
+		const offersList = host.querySelector('[data-offers-list]');
 		const items = host.querySelectorAll('.fs-offers__item');
 		let current = 0;
 		let autoTimer = null;
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const scrollMq = window.matchMedia('(max-width: 899px)');
 
-		const stage = host.querySelector('.fs-offers__stage');
+		const stage = host.querySelector('[data-offers-stage]');
 
-		const setActive = (i) => {
-			if (i === current) return;
+		const updateProgress = (i) => {
+			const pct = ((i + 1) / offers.length) * 100;
+			progressFill?.style.setProperty('--fs-offers-progress', pct + '%');
+			if (progressCurrent) progressCurrent.textContent = String(i + 1).padStart(2, '0');
+			if (progressBar) progressBar.setAttribute('aria-valuenow', String(i + 1));
+		};
+
+		const setActive = (i, options = {}) => {
+			if (i < 0 || i >= offers.length) return;
+			const prev = current;
+			if (i === prev && !options.force) return;
+
+			const dir = i > prev ? 1 : i < prev ? -1 : 0;
 			current = i;
 			const o = offers[i];
-			stage?.classList.remove('is-swap');
-			void stage?.offsetWidth;
-			stage?.classList.add('is-swap');
+
+			stage?.classList.remove('is-swap', 'is-swap-back');
+			if (dir !== 0) {
+				void stage?.offsetWidth;
+				stage?.classList.add(dir > 0 ? 'is-swap' : 'is-swap-back');
+			}
+
 			stageTitle.textContent = o.title;
 			stageText.textContent = o.text;
 			stageIndex.textContent = String(i + 1).padStart(2, '0');
@@ -328,6 +368,7 @@
 				btn.classList.toggle('is-active', on);
 				btn.setAttribute('aria-pressed', on ? 'true' : 'false');
 			});
+			updateProgress(i);
 		};
 
 		const stopAuto = () => {
@@ -339,7 +380,7 @@
 
 		const restartAuto = () => {
 			stopAuto();
-			if (reduceMotion) return;
+			if (reduceMotion || scrollMq.matches) return;
 			autoTimer = window.setInterval(() => setActive((current + 1) % offers.length), 4200);
 		};
 
@@ -358,7 +399,107 @@
 
 		host.addEventListener('mouseenter', stopAuto);
 		host.addEventListener('mouseleave', restartAuto);
+
+		initOffersScrollStory(
+			section,
+			setActive,
+			reduceMotion,
+			scrollMq,
+			restartAuto,
+			stopAuto,
+			offersList,
+			offers.length,
+		);
+		updateProgress(0);
 		restartAuto();
+	}
+
+	function initOffersScrollStory(
+		section,
+		setActive,
+		reduceMotion,
+		scrollMq,
+		restartAuto,
+		stopAuto,
+		offersList,
+		offersCount,
+	) {
+		const stepsHost = section?.querySelector('[data-offers-steps]');
+		const pin = section?.querySelector('.fs-offers__pin');
+		if (!section || !stepsHost || !pin || !offersCount) return;
+
+		if (!stepsHost.childElementCount) {
+			for (let i = 0; i < offersCount; i++) {
+				const step = document.createElement('div');
+				step.className = 'fs-offers__step';
+				step.dataset.offerIndex = String(i);
+				stepsHost.appendChild(step);
+			}
+		}
+
+		const steps = stepsHost.querySelectorAll('.fs-offers__step');
+		let scrollRaf = 0;
+
+		const markerY = () => {
+			const rect = pin.getBoundingClientRect();
+			return rect.top + rect.height * 0.42;
+		};
+
+		const sectionInView = () => {
+			const rect = section.getBoundingClientRect();
+			return rect.bottom > 0 && rect.top < window.innerHeight;
+		};
+
+		const resolveActiveStep = () => {
+			if (!scrollMq.matches || reduceMotion || !steps.length || !sectionInView()) return;
+
+			const y = markerY();
+			let bestIndex = 0;
+			let bestDist = Infinity;
+
+			steps.forEach((step, idx) => {
+				const rect = step.getBoundingClientRect();
+				const center = rect.top + rect.height * 0.5;
+				const dist = Math.abs(center - y);
+				if (dist < bestDist) {
+					bestDist = dist;
+					bestIndex = idx;
+				}
+			});
+
+			setActive(bestIndex);
+		};
+
+		const onScroll = () => {
+			if (!scrollMq.matches || reduceMotion) return;
+			if (scrollRaf) return;
+			scrollRaf = window.requestAnimationFrame(() => {
+				scrollRaf = 0;
+				resolveActiveStep();
+			});
+		};
+
+		const syncMode = () => {
+			const scrollMode = scrollMq.matches && !reduceMotion;
+			section.classList.toggle('fs-offers--scroll', scrollMode);
+			offersList?.setAttribute('aria-hidden', scrollMode ? 'true' : 'false');
+
+			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('resize', onScroll);
+
+			if (scrollMode) {
+				stopAuto();
+				window.addEventListener('scroll', onScroll, { passive: true });
+				window.addEventListener('resize', onScroll, { passive: true });
+				window.requestAnimationFrame(resolveActiveStep);
+				return;
+			}
+
+			restartAuto();
+		};
+
+		scrollMq.addEventListener('change', syncMode);
+		syncMode();
 	}
 
 	function injectKidsBanner() {
