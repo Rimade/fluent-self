@@ -530,9 +530,10 @@
 		if (!header) return;
 
 		const main = document.querySelector('[data-menu-page]');
-		const overlayPage = !!main?.querySelector(
-			'.page-cover, .fs-photo-hero, .fs-about-hero, .home-hero--media',
+		const hero = main?.querySelector(
+			'.home-hero--media, .page-cover, .fs-photo-hero, .fs-about-hero',
 		);
+		const overlayPage = !!hero;
 
 		if (overlayPage) {
 			header.classList.add('fs-header--overlay');
@@ -546,9 +547,31 @@
 		syncHeight();
 		window.addEventListener('resize', syncHeight, { passive: true });
 
-		const onScroll = () => header.classList.toggle('fs-header--scrolled', window.scrollY > 12);
-		onScroll();
-		window.addEventListener('scroll', onScroll, { passive: true });
+		const updateHeaderState = () => {
+			if (!overlayPage || !hero) {
+				header.style.removeProperty('--fs-header-solid');
+				header.classList.toggle('fs-header--scrolled', window.scrollY > 12);
+				return;
+			}
+
+			const headerH = header.offsetHeight;
+			const heroBottom = hero.getBoundingClientRect().bottom;
+			const blend = 88;
+			let solid = 0;
+
+			if (heroBottom <= headerH) {
+				solid = 1;
+			} else if (heroBottom < headerH + blend) {
+				solid = 1 - (heroBottom - headerH) / blend;
+			}
+
+			header.style.setProperty('--fs-header-solid', solid.toFixed(3));
+			header.classList.toggle('fs-header--scrolled', solid >= 0.98);
+		};
+
+		updateHeaderState();
+		window.addEventListener('scroll', updateHeaderState, { passive: true });
+		window.addEventListener('resize', updateHeaderState, { passive: true });
 
 		const mobile = header.querySelector('[data-fs-mobile-menu]');
 		const openBtn = header.querySelector('[data-fs-menu-open]');

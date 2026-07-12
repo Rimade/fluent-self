@@ -223,8 +223,36 @@ h3.ff-graphik {
 }
 
 .fs-header__bar {
+  position: relative;
+  isolation: isolate;
   border-bottom: 1px solid transparent;
-  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    background 0.45s ease,
+    border-color 0.45s ease,
+    box-shadow 0.45s ease,
+    color 0.45s ease;
+}
+
+.fs-header__bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: rgba(247, 245, 242, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: opacity 0.45s ease;
+}
+
+.fs-header--overlay .fs-header__bar::before {
+  opacity: var(--fs-header-solid, 0);
+}
+
+.fs-header--overlay .fs-header__bar {
+  border-bottom-color: rgba(226, 221, 213, calc(var(--fs-header-solid, 0) * 0.85));
+  box-shadow: 0 4px 24px rgba(58, 57, 55, calc(var(--fs-header-solid, 0) * 0.06));
 }
 
 .fs-header__row {
@@ -458,16 +486,27 @@ h3.ff-graphik {
   color: #fdfcfb;
 }
 
+.fs-header--overlay.fs-header--scrolled .fs-header__burger {
+  background: rgba(253, 252, 251, 0.72);
+  border-color: var(--fs-line);
+  color: var(--fs-ink);
+}
+
 .fs-header--overlay.fs-header--scrolled,
 .fs-header--scrolled {
   color: var(--fs-ink);
 }
 
-.fs-header--scrolled .fs-header__bar {
+.fs-header--scrolled:not(.fs-header--overlay) .fs-header__bar {
   background: rgba(247, 245, 242, 0.94);
   border-color: var(--fs-line);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 4px 24px rgba(58, 57, 55, 0.06);
+}
+
+.fs-header--overlay.fs-header--scrolled .fs-header__bar {
+  background: linear-gradient(180deg, rgba(58, 57, 55, 0) 0%, rgba(58, 57, 55, 0) 100%);
 }
 
 .fs-header--scrolled .fs-header__cta {
