@@ -757,7 +757,11 @@
 			const vw = viewport.getBoundingClientRect().width;
 			const mobile = window.matchMedia('(max-width: 699px)').matches;
 			if (mobile) {
-				sidePad = Math.max(12, (vw - cardW) / 2);
+				const head = host.querySelector('.fs-reviews__head');
+				const headLeft = head
+					? head.getBoundingClientRect().left - viewport.getBoundingClientRect().left
+					: 0;
+				sidePad = Math.max(0, headLeft);
 			} else {
 				const head = host.querySelector('.fs-reviews__head');
 				const headLeft = head
