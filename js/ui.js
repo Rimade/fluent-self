@@ -18,7 +18,6 @@
 		purgeCelebrities();
 		replaceFirstukMedia();
 		injectPillarsSection();
-		injectKidsBanner();
 		renderOffersSection();
 		renderAdultCoursesPage();
 		renderCorpPage();
@@ -511,7 +510,7 @@
 			document.querySelector('.courses');
 		if (!anchor) return;
 
-		const kidsUrl = (window.SITE_CONFIG || {}).kidsSite || 'https://fluentselfkids.ru';
+		const kidsUrl = (window.SITE_CONFIG || {}).kidsSite || 'https://medcapital.school';
 		const banner = document.createElement('aside');
 		banner.className = 'fs-kids-banner';
 		banner.innerHTML =
@@ -721,7 +720,7 @@
 		const main = document.querySelector('[data-menu-page]');
 		if (!main || main.querySelector('.fs-kids-notice')) return;
 
-		const kidsUrl = (window.SITE_CONFIG || {}).kidsSite || 'https://fluentselfkids.ru';
+		const kidsUrl = (window.SITE_CONFIG || {}).kidsSite || 'https://medcapital.school';
 		const notice = document.createElement('div');
 		notice.className = 'fs-kids-notice';
 		notice.innerHTML =
@@ -1051,7 +1050,7 @@
 
 		const hero = data.hero || {};
 		const filters = data.filters || [{ id: 'all', label: 'Все' }];
-		const kidsUrl = (window.SITE_CONFIG || {}).kidsSite || 'https://fluentselfkids.ru';
+		const kidsUrl = (window.SITE_CONFIG || {}).kidsSite || 'https://medcapital.school';
 
 		const filterHtml = filters
 			.map(
@@ -1577,7 +1576,7 @@
 		if (!host || !data) return;
 
 		const cfg = window.SITE_CONFIG || {};
-		const kidsUrl = cfg.kidsSite || 'https://fluentselfkids.ru';
+		const kidsUrl = cfg.kidsSite || 'https://medcapital.school';
 		const hero = data.hero || {};
 		const trust = hero.trust || {};
 

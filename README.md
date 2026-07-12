@@ -1,6 +1,6 @@
 # Fluent Self — школа иностранных языков (взрослые)
 
-Клон [firstuk.school](https://firstuk.school/) под бренд **Fluent Self**. Дети — [Fluent Self kids](https://fluentselfkids.ru).
+Клон [firstuk.school](https://firstuk.school/) под бренд **Fluent Self**. Дети — [Fluent Self kids](https://medcapital.school).
 
 ## Быстрый старт
 

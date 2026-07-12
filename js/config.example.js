@@ -11,7 +11,7 @@ const SITE_CONFIG = {
 	address: 'г. Москва, ул. Примерная, д. 1',
 	hours: 'каждый день с 10:00 - 20:00',
 	whatsapp: 'https://wa.me/74993985595',
-	kidsSite: 'https://fluentselfkids.ru',
+	kidsSite: 'https://medcapital.school',
 	social: {
 		facebook: '',
 		instagram: '',

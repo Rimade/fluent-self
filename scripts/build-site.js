@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const KIDS_SITE = 'https://fluentselfkids.ru';
+const KIDS_SITE = 'https://medcapital.school';
 
 const PAGES = [
 	['_ref-home.html', 'index.html', 0],

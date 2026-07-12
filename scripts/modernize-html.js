@@ -8,7 +8,7 @@ const path = require('path');
 const { listSiteHtml } = require('./lib/pages');
 
 const ROOT = path.join(__dirname, '..');
-const KIDS = 'https://fluentselfkids.ru';
+const KIDS = 'https://medcapital.school';
 
 const PAGES = listSiteHtml(ROOT);
 
