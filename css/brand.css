@@ -1,12 +1,16 @@
 /**
  * Fluent Self — визуальный слой (взрослый сегмент)
  * Пастель, сдержанность, editorial — не копия kids-сайта
+ *
+ * Типографика (везде):
+ *   Display — Cormorant Garamond (заголовки, акценты, italic)
+ *   UI/Body — Source Sans 3 (навигация, текст, кнопки, формы)
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 
 :root {
-  --fs-font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --fs-font-display: 'Cormorant Garamond', Georgia, serif;
   --fs-font-ui: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --fs-font-body: var(--fs-font-ui);
   --fs-primary: #5a7f76;
@@ -28,22 +32,34 @@
   --fs-container-x: clamp(1.25rem, 4vw, 2.5rem);
 }
 
-/* ——— Typography ——— */
+/* ——— Typography (единая система) ——— */
 
 html,
 body,
-.ff-main {
-  font-family: var(--fs-font-body) !important;
+.ff-main,
+button,
+input,
+select,
+textarea {
+  font-family: var(--fs-font-ui) !important;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Старые классы firstuk → наша UI-гарнитура */
 .ff-graphik,
+.kt-block h1,
+.kt-block h2,
+.kt-block h3,
+.message span,
+.button,
 .fs-header,
 .fs-footer,
 .fs-mobile-menu,
 .fs-section-title,
 .fs-hero-lang,
+.fs-hero-subtitle,
 .fs-hero-cta__btn,
 .fs-nav-trigger,
 .fs-nav-link,
@@ -53,61 +69,76 @@ body,
 .fs-footer__label,
 .fs-footer__brand,
 .fs-footer__cta,
+.fs-footer__link,
+.fs-footer__tagline,
+.fs-footer__text,
+.fs-footer__copy,
 .fs-order-form__label,
 .fs-order-form__legend,
 .fs-order-form__submit,
-.fs-hero-subtitle,
+.fs-order-chip,
 .fs-pillar__text,
 .fs-offers__text,
-.courses-item,
-button,
-input,
-select,
-textarea {
+.fs-offers__cta,
+.fs-courses-filter,
+.fs-course-card__pace,
+.fs-course-card__go,
+.fs-course-card__num,
+.fs-courses-orbit__hint,
+.fs-courses-orbit__code,
+.fs-courses-orbit__name,
+.fs-review-card__name,
+.fs-review-card__course,
+.fs-reviews__eyebrow,
+.fs-reviews__hint,
+.fz-xs,
+.fz-sm,
+.tracking-wide {
   font-family: var(--fs-font-ui) !important;
 }
 
+/* Display: заголовки и акцентный italic */
+h1,
+.ff-italic,
+.fz-xl-vw,
+.fz-xl,
+.fz-lg,
+.courses-item .fz-md,
 .fs-hero-title,
-.fs-courses-hero__title,
-.fs-about-hero__title,
-.fs-about-hero__brand,
-.fs-contacts-hero__title,
-.fs-corp-hero__title,
-.fs-events-hero__title,
-.fs-photo-hero__title,
 .fs-reviews__title,
+.fs-review-card__text,
+.fs-review-card__quote,
 .fs-pillar__title,
 .fs-offers__title,
 .fs-kids-banner__title,
 .fs-page-cta__title,
 .fs-page-cover__title,
-.fs-corp-section-head__title,
-.fs-corp-benefit__title,
-.fs-corp-format__title,
-.fs-corp-step__title,
-.fs-corp-outro__title,
+.fs-about-hero__brand,
+.fs-about-hero__title,
 .fs-about-story__title,
-.fs-about-pillar__title,
-.fs-about-section-head__title,
 .fs-about-principle__title,
 .fs-about-outro__title,
-.fs-contacts-section-head__title,
-.fs-contacts-way__title,
+.fs-about-section-head__title,
+.fs-contacts-hero__title,
 .fs-contacts-outro__title,
-.fs-courses-catalog__title,
+.fs-contacts-section-head__title,
+.fs-corp-hero__title,
+.fs-corp-format__title,
+.fs-corp-outro__title,
+.fs-corp-section-head__title,
+.fs-courses-hero__title,
 .fs-courses-format__title,
-.fs-course-card__title,
+.fs-courses-catalog__title,
 .fs-courses-outro__title,
-.fs-events-section-head__title,
+.fs-course-card__title,
+.fs-events-hero__title,
 .fs-events-card__title,
 .fs-events-format__title,
 .fs-events-outro__title,
+.fs-events-section-head__title,
 .fs-order__title,
-.fs-photo-outro__title,
-.ff-italic,
-.fs-review-card__text,
-.fs-review-card__quote,
-.fz-xl-vw {
+.fs-photo-hero__title,
+.fs-photo-outro__title {
   font-family: var(--fs-font-display) !important;
 }
 
@@ -118,7 +149,8 @@ textarea {
 .fs-corp-hero__title,
 .fs-events-hero__title,
 .fs-photo-hero__title,
-.fs-reviews__title {
+.fs-reviews__title,
+.fs-order__title {
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -129,13 +161,14 @@ textarea {
 
 .fs-pillar__title,
 .fs-course-card__title,
-.fs-about-pillar__title {
+.fs-offers__title,
+.fs-kids-banner__title,
+.courses-item .fz-md {
   font-weight: 600;
 }
 
 .ff-italic,
 .fs-review-card__text {
-  font-family: var(--fs-font-display) !important;
   font-style: italic;
   font-weight: 500;
 }
@@ -144,6 +177,16 @@ textarea {
   font-style: normal;
   font-weight: 400;
   font-family: var(--fs-font-ui) !important;
+}
+
+/* UI-заголовки, которые намеренно sans (с ff-graphik в разметке) */
+.ff-graphik.fs-corp-benefit__title,
+.ff-graphik.fs-corp-step__title,
+.ff-graphik.fs-about-pillar__title,
+.ff-graphik.fs-contacts-way__title,
+h3.ff-graphik {
+  font-family: var(--fs-font-ui) !important;
+  font-weight: 500;
 }
 
 .fs-header .container,

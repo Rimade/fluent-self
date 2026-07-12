@@ -22,7 +22,7 @@ const PAGES = [
 
 const SPRITE = `<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
 <symbol id="logo" viewBox="0 0 180 20">
-  <text x="0" y="15" font-family="Times New Roman, Times, serif" font-size="17" letter-spacing="0.08em" fill="currentColor">FLUENT SELF</text>
+  <text x="0" y="15" font-family="Cormorant Garamond, Georgia, serif" font-size="17" font-weight="600" letter-spacing="0.08em" fill="currentColor">FLUENT SELF</text>
 </symbol>
 <symbol id="arrow" viewBox="0 0 30 7">
   <path d="M0 3.5H24M20 .5L29 3.5L20 6.5" stroke="currentColor" stroke-width="1" fill="none"/>

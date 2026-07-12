@@ -29,7 +29,7 @@ npx serve .
 - `js/site.js` — SEO meta, валидация формы, cookie-баннер
 - `js/telegram.js` — отправка заявок
 - `sitemap.xml`, `privacy.html`, favicon.svg
-- Шрифт Graphik в `assets/fonts/`
+- Шрифты: Cormorant Garamond + Source Sans 3 (Google Fonts)
 
 ## Деплой Reg.ru
 

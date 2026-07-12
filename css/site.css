@@ -1,5 +1,11 @@
 /* Fluent Self — улучшения поверх firstuk CSS (дизайн сохранён) */
 
+/* Жёсткий сброс legacy-шрифтов firstuk (бывшие Times / Graphik) */
+html,
+body {
+  font-family: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
 .skip-link {
   position: absolute;
   left: -9999px;
@@ -10,6 +16,7 @@
   color: #fff;
   font-size: 14px;
   text-decoration: none;
+  font-family: 'Source Sans 3', system-ui, sans-serif;
 }
 
 .skip-link:focus {

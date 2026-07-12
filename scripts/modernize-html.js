@@ -47,10 +47,15 @@ function patch(html, filename) {
 	const fontPreconnect =
 		'  <link rel="preconnect" href="https://fonts.googleapis.com">\n' +
 		'  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
-		'  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">\n';
+		'  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">\n';
 
 	if (!out.includes('fonts.googleapis.com')) {
 		out = out.replace(/(<link href="[^"]*brand\.css" rel="stylesheet">)/, fontPreconnect + '$1');
+	} else {
+		out = out.replace(
+			/href="https:\/\/fonts\.googleapis\.com\/css2\?[^"]+"/g,
+			'href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap"',
+		);
 	}
 
 	if (!out.includes('skip-link')) {
